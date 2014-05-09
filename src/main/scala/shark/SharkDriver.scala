@@ -29,6 +29,7 @@ import org.apache.hadoop.hive.ql.log.PerfLogger
 import org.apache.hadoop.hive.ql.metadata.AuthorizationException
 import org.apache.hadoop.hive.ql.parse._
 import org.apache.hadoop.hive.ql.plan._
+import org.apache.hadoop.hive.ql.sampleclean.SampleCleanSQLExtensionParser;
 import org.apache.hadoop.hive.ql.session.SessionState
 import org.apache.hadoop.hive.serde2.{SerDe, SerDeUtils}
 import org.apache.hadoop.util.StringUtils
@@ -137,11 +138,15 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
 
   def LOG = SharkDriver.logField.get(null).asInstanceOf[org.apache.commons.logging.Log]
 
+  var sampleCleanParser:SampleCleanSQLExtensionParser = null;
+
   var useTableRddSink = false
 
   override def init(): Unit = {
     // Forces the static code in SharkDriver to execute.
     SharkDriver.runStaticCode()
+
+    sampleCleanParser = new SampleCleanSQLExtensionParser(0,0)
 
     // Init Hive Driver.
     super.init()
@@ -162,6 +167,37 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
     }
   }
 
+  override def run(command: String):CommandProcessorResponse = {
+
+            val sampleCleanEnabled = SharkConfVars.getBoolVar(conf, SharkConfVars.SAMPLE_CLEAN_ENABLED)
+
+            if(sampleCleanEnabled){
+                
+                val cmdList = sampleCleanParser.parse(command)
+
+                if (cmdList == null || cmdList.size() == 0)
+                {
+                        //logInfo("SampleClean Executing: " + command)
+                        return super.run(command)
+                }
+
+                var rtnVal:CommandProcessorResponse = null
+                for (rewrittenCmd <- cmdList)
+                    {
+                        logInfo("SampleClean Executing: " + rewrittenCmd)
+                        rtnVal = super.run(rewrittenCmd)
+                    }
+
+                return rtnVal
+            }
+            else
+            {
+                return super.run(command)
+            }
+
+
+  }
+
   /**
    * Overload compile to use Shark's semantic analyzers.
    */
@@ -177,6 +213,9 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
 
       val sampleSize = SharkConfVars.getLongVar(conf, SharkConfVars.SAMPLE_SIZE)
       val datasetSize = SharkConfVars.getLongVar(conf, SharkConfVars.DATASET_SIZE)
+      
+      sampleCleanParser.setDatasetSize(datasetSize)
+      sampleCleanParser.setSampleSize(sampleSize)
 
       if (sampleSize == 0)
       {
