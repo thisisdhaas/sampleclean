@@ -33,6 +33,7 @@ import org.apache.hadoop.hive.ql.sampleclean.SampleCleanSQLExtensionParser;
 import org.apache.hadoop.hive.ql.session.SessionState
 import org.apache.hadoop.hive.serde2.{SerDe, SerDeUtils}
 import org.apache.hadoop.util.StringUtils
+import org.apache.hadoop.hive.ql.processors.CommandProcessorResponse;
 
 import shark.api.TableRDD
 import shark.api.QueryExecutionException
