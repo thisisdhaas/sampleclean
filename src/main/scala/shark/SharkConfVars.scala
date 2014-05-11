@@ -50,12 +50,12 @@ object SharkConfVars {
 
   // Print debug information for map pruning.
   val MAP_PRUNING_PRINT_DEBUG = new ConfVar("shark.mappruning.debug", false)
-
+ 
   // If true, then query plans are compressed before being sent
   val COMPRESS_QUERY_PLAN = new ConfVar("shark.queryPlan.compress", true)
 
-  val SAMPLE_SIZE = new ConfVar("blinkdb.sample.size", 0l)
-  val DATASET_SIZE = new ConfVar("blinkdb.dataset.size", 0l)
+  val SAMPLE_SIZE = new ConfVar("sampleclean.sample.size", 0l)
+  val DATASET_SIZE = new ConfVar("sampleclean.dataset.size", 0l)
 
   val SAMPLE_CLEAN_ENABLED = new ConfVar("sampleclean.enabled", false)
 

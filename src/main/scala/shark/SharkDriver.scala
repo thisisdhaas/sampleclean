@@ -139,15 +139,13 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
 
   def LOG = SharkDriver.logField.get(null).asInstanceOf[org.apache.commons.logging.Log]
 
-  var sampleCleanParser:SampleCleanSQLExtensionParser = null;
+  var sampleCleanParser:SampleCleanSQLExtensionParser = new SampleCleanSQLExtensionParser(0,0);
 
   var useTableRddSink = false
 
   override def init(): Unit = {
     // Forces the static code in SharkDriver to execute.
     SharkDriver.runStaticCode()
-
-    sampleCleanParser = new SampleCleanSQLExtensionParser(0,0)
 
     // Init Hive Driver.
     super.init()
@@ -170,7 +168,13 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
 
   override def run(command: String):CommandProcessorResponse = {
 
+            val sampleSize = SharkConfVars.getLongVar(conf, SharkConfVars.SAMPLE_SIZE)
+            val datasetSize = SharkConfVars.getLongVar(conf, SharkConfVars.DATASET_SIZE)
             val sampleCleanEnabled = SharkConfVars.getBoolVar(conf, SharkConfVars.SAMPLE_CLEAN_ENABLED)
+      
+            sampleCleanParser.setDatasetSize(datasetSize)
+            sampleCleanParser.setSampleSize(sampleSize)
+            sampleCleanParser.setHiveConf(conf)
 
             if(sampleCleanEnabled){
                 
@@ -210,13 +214,10 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
     val queryState = new SharkDriver.QueryState
 
     var _cmd = cmd.toLowerCase()
-    if ((_cmd contains "approx_sum") || (_cmd contains "approx_count")) {
 
-      val sampleSize = SharkConfVars.getLongVar(conf, SharkConfVars.SAMPLE_SIZE)
-      val datasetSize = SharkConfVars.getLongVar(conf, SharkConfVars.DATASET_SIZE)
-      
-      sampleCleanParser.setDatasetSize(datasetSize)
-      sampleCleanParser.setSampleSize(sampleSize)
+    logInfo("Dataset size: " + sampleCleanParser.datasetSize + " , Sample Size: " + sampleCleanParser.sampleSize)
+
+    /*if ((!sampleCleanEnabled) && (_cmd contains "approx_sum") || (_cmd contains "approx_count")) {
 
       if (sampleSize == 0)
       {
@@ -245,7 +246,7 @@ private[shark] class SharkDriver(conf: HiveConf) extends Driver(conf) with LogHe
       }
 
       _cmd = cmd_temp
-    }
+    }*/
     
     logInfo(_cmd)
         

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+ 
 package shark
 
 import java.io.BufferedReader
@@ -51,7 +51,7 @@ import shark.memstore2.TableRecovery
 object SharkCliDriver {
   val SKIP_RDD_RELOAD_FLAG = "-skipRddReload"
 
-  private var prompt  = "blinkdb"
+  private var prompt  = "sampleclean"
   private var prompt2 = "     " // when ';' is not yet seen.
   private var transport:TSocket = _
 
