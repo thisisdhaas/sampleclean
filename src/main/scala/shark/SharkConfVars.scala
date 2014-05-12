@@ -57,7 +57,7 @@ object SharkConfVars {
   val SAMPLE_SIZE = new ConfVar("sampleclean.sample.size", 0l)
   val DATASET_SIZE = new ConfVar("sampleclean.dataset.size", 0l)
 
-  val SAMPLE_CLEAN_ENABLED = new ConfVar("sampleclean.enabled", false)
+  val SAMPLE_CLEAN_ENABLED = new ConfVar("sampleclean.enabled", true)
 
   // Add Shark configuration variables and their default values to the given conf,
   // so default values show up in 'set'.
