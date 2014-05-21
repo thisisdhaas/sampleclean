@@ -1,4 +1,4 @@
-![SampleClean](http://sampleclean.org/logo.png =250x)
+![SampleClean](http://sampleclean.org/logo-small.png)
 #### A Sample-and-Clean Framework for Fast and Accurate Query Processing on Dirty Data
 
 In emerging Big Data scenarios, obtaining timely, high-quality answers to aggregate queries is difficult due to the challenges of processing and cleaning large, dirty data sets. To increase the speed of query processing, there has been a resurgence of interest in sampling-based approximate query processing (SAQP). In its usual formulation, however, SAQP does not address data cleaning at all, and in fact, exacerbates answer quality problems by introducing by sampling error. We explore the use of sampling to actually improve answer quality. We introduce the Sample-and-Clean framework, which applies data cleaning to a relatively small subset of the data and uses the results of the cleaning process to lessen the impact of dirty data on aggregate query answers.
