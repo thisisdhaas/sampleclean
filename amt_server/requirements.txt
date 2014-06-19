@@ -1,0 +1,5 @@
+Django==1.6.5
+boto==2.29.1
+django-sslserver==0.12
+psycopg2==2.5.3
+wsgiref==0.1.2
