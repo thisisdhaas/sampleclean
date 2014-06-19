@@ -21,6 +21,10 @@ Thing to do to get up and running:
 * Sign up for a mechanical turk account, and put the credentials in
   `private_settings.py`. **NEVER CHECK THIS FILE INTO THE REPO.**
 
+* Set up the database:
+
+          $ python manage.py syncdb
+
 * Run the server:
 
           $ python manage.py runsslserver
