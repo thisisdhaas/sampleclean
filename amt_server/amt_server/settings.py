@@ -13,6 +13,25 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
+# Settings for the AMT app
+AMT_SANDBOX = True # run on the sandbox, or on the real deal?
+AMT_SANDBOX_HOST = 'mechanicalturk.sandbox.amazonaws.com'
+AMT_HOST = 'mechanicalturk.amazonaws.com'
+AMT_DEFAULT_HIT_OPTIONS = { # See documentation in amt/connection.py:create_hit
+    'view': 'amt:get_assignment',
+    'title': 'Generic HIT',
+    'description': 'This is a HIT to run on AMT.',
+    'reward': 0.03,
+    'duration': 5,
+    'num_responses': 3,
+    'frame_height': 800,
+    'use_https': True,
+}
+
+# AMT Settings that MUST be defined in private_settings.py:
+#   AMT_ACCESS_KEY
+#   AMT_SECRET_KEY
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -36,6 +55,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'sslserver',
     'amt',
 )
 
@@ -85,3 +106,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Sites
+# https://docs.djangoproject.com/en/1.6/ref/contrib/sites/
+SITE_ID = 1
+
+# Import private settings, overriding settings in this file
+try:
+    from private_settings import *
+except ImportError:
+    pass

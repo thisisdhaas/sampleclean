@@ -3,5 +3,6 @@ from django.conf.urls import patterns, url
 from amt import views
 
 urlpatterns = patterns('',
-                       url(r'^tasks/(?P<task_id>\d+)/$', views.display_task, name='display_task'),
+    url(r'^assignments/$', views.get_assignment, name='get_assignment'),
+    url(r'^responses/$', views.post_response, name='post_response'),
 )
