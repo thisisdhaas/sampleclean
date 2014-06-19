@@ -19,7 +19,7 @@ Thing to do to get up and running:
           $ cp amt_server/private_settings.py.default amt_server/private_settings.py
 
 * Sign up for a mechanical turk account, and put the credentials in
-  `private_settings.py`.
+  `private_settings.py`. **NEVER CHECK THIS FILE INTO THE REPO.**
 
 * Run the server:
 
