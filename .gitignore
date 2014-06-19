@@ -50,3 +50,6 @@ test_warehouses
 # Ensime files for emacs
 .ensime
 .ensime_lucene
+
+# Python compiled byte code
+*.pyc
