@@ -56,7 +56,7 @@ def create_hit(hit_options):
         frame_height=options['frame_height'])
 
     conn = get_amt_connection()
-    conn.create_hit(
+    create_response = conn.create_hit(
         question=question,
         title=options['title'],
         description=options['description'],
@@ -64,3 +64,6 @@ def create_hit(hit_options):
         duration=timedelta(minutes=options['duration']),
         max_assignments=options['num_responses'],
         approval_delay=0)
+        
+    return create_response[0].HITId
+    

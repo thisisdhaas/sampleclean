@@ -29,7 +29,7 @@ Thing to do to get up and running:
 
           $ python manage.py runsslserver
 
-* Make sure it works: head to `https://localhost:8000/assignments/` and you should
+* Make sure it works: head to `https://localhost:8000/amt/assignments/` and you should
   see a 'Hello World' message. Then log into the AMT management interface
   (https://requestersandbox.mturk.com/mturk/manageHITs) and verify that you have
   just created an example HIT. Then log in as a worker
