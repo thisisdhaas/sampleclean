@@ -50,7 +50,7 @@ def create_hit(hit_options):
     scheme = 'https' if options['use_https'] else 'http'
     path = reverse(options['view'])
     url = scheme + '://' + Site.objects.get_current().domain + path
-
+	
     question = ExternalQuestion(
         external_url=url,
         frame_height=options['frame_height'])

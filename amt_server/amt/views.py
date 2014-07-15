@@ -22,12 +22,12 @@ def hits_gen(request):
     json_array = json.loads(json_array)
     
     # Create a sample HIT
-    for i in range(1) :
+    for i in range(5) :
         
         # Create a new hit and get its HIT Id
         additional_options = {}
         current_hit_id = create_hit(additional_options)
-        
+            
         # Save this hit to the database
         current_hit = HIT(type = 'sa', content = json_array[i], create_time = datetime.now(), HITId = current_hit_id)
         current_hit.save()
@@ -52,19 +52,15 @@ def get_assignment(request):
     # this request is for a preview of the task: we shouldn't allow submission.
     if assignment_id == AMT_NO_ASSIGNMENT_ID:
         assignment_id = None
-	
-    # render a template for the assignment
-    # TODO: make this template real!
-	
-	# Retrieve the tweet based on hit_id from the database
-	current_hit = HIT.objects.filter(HITId = hit_id)[0]
-	tweet_content = current_hit.content
-	
-	# Render the template
-    return render(request, 'amt/assignment.html',
-                {'assignment_id': assignment_id, 'tweet_content': tweet_content})
-
-				
+    
+    # Retrieve the tweet based on hit_id from the database
+    current_hit = HIT.objects.filter(HITId = hit_id)[0]
+    tweet_content = current_hit.content
+    
+    # Render the template
+    context = {'assignment_id': assignment_id, 'tweet_content': tweet_content}
+    return render(request, 'amt/assignment.html', context)
+                 
 # When workers submit assignments, we should send data to this view via AJAX
 # before submitting to AMT.
 @require_POST
