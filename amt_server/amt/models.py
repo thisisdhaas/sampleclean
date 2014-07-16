@@ -22,7 +22,7 @@ class HIT(models.Model):
     create_time = models.DateTimeField() 
     
     # HITId 
-    HITId = models.TextField()
+    HITId = models.TextField(primary_key = True)
     
     def __unicode__(self):
         return self.type + " : " + self.content
@@ -31,7 +31,7 @@ class HIT(models.Model):
 class Worker(models.Model):
     
     # The id of the worker
-    worker_id = models.TextField()
+    worker_id = models.TextField(primary_key = True)
     
     # The HITs that accepted by this worker, a many-to-many relationship
     hits = models.ManyToManyField(HIT)
