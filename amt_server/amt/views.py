@@ -41,22 +41,44 @@ def store_request(request):
 def hits_gen(request):
     '''
         This view receives GET parameters and creates corresponding HITs. (Temporarily use GET for debugging)
-        Get parameters :
-	    `type` : The type of this hit; 
-	    `tweet_content` : The tweet content for sentiment analysis;
+        GET parameters :
+        
+	    `type` : The type of this hit;
+	    
+	    `tweet_content` :
+
+                The tweet content for sentiment analysis, a JSON array of JSON arrays, 
+		e.g, the following JSON array :
+                    ["[\"Arsenal won the 4th again!\", \"Theo Walcott broke the ligament in his knee last season.\"]", 
+                    "[\"Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful.\"]"]
+		will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
+		Be careful on the delimeters :
+                    1) No \ before the double quotes that surround the HITs;
+                    2) Make sure to put a \ before the double quotes that surround the tweets.
+		
+	    'group_id' : An interger used to specify the ID of this group of HITs.
+	    
+	    'callback_url' : The call back url
+		
     '''
     # Parse information contained in the URL
     hit_type = request.GET.get('type')
     tweet_content = request.GET.get('tweet_content')
+    try :
+        tweet_content = json.loads(tweet_content)
+    except :
+        return HttpResponse('Wrong format. Try again')
 
-    # Using boto API to create an AMT HIT
-    additional_options = {}
-    current_hit_id = create_hit(additional_options)
-            
-    # Save this HIT to the database
-    store_hit(hit_type, tweet_content, datetime.now(), current_hit_id)
-    
-    return HttpResponse(current_hit_id)
+    for i in range(len(tweet_content)) :
+        
+        # Using boto API to create an AMT HIT
+        additional_options = {}
+        current_hit_id = create_hit(additional_options)
+
+        # Save this HIT to the database
+        store_hit(hit_type, tweet_content[i], datetime.now(), current_hit_id)
+        
+    return HttpResponse('%s HITs have been succesfully created.' % len(tweet_content))
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in
@@ -86,7 +108,9 @@ def get_assignment(request):
         tweet_content = current_hit.content
     else:
         current_hit = None
-        tweet_content = 'No task available at this moment!'
+        tweet_content = '[No task available at this moment!]'
+
+    tweet_content = json.loads(tweet_content)
     
     # Save the information of this worker
     if worker_id != None:
@@ -95,12 +119,12 @@ def get_assignment(request):
     else:
         current_worker = None
     
-    # Save the information of this request
+    # Save the information of this request(only when it is an acceptance)
     if assignment_id != None:
         store_request(request)
     
     # Build relationships between workers and HITs (when a worker accepts this hit)
-    if current_worker != None and assignment_id != None:
+    if current_worker != None and assignment_id != None and current_hit != None:
         current_worker.hits.add(current_hit)
 
     # Check the number of HITs this worker has accepted. A threshold needs to be tuned.

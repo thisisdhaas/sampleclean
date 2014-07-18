@@ -1,6 +1,15 @@
 
 <html>
 	<head>
+		<script type='text/javascript' src='//code.jquery.com/jquery-1.11.0.js'></script>
+		<script type="text/javascript">	
+			
+			$(document).ready(function()
+			{
+
+			});	
+		</script>
+		
 		<title>HIT</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		<link href="https://s3.amazonaws.com/mturk-public/bs30/css/bootstrap.min.css" rel="stylesheet" />
@@ -10,7 +19,7 @@
 				<div class="panel panel-primary">
 					<div class="panel-heading"><strong><font size = 3> Instructions </font></strong></div>
 					<div class="panel-body">
-						<p>Select the sentiment for this tweet.</p>
+						<p>Select the sentiment for each tweet.</p>
 
 						<ul>
 							<li>
@@ -47,26 +56,23 @@
 						
 					</div>
 				</div>
-
-				<div class="panel panel-primary">
-					<div class="panel-heading"><strong><font size = 3>Tweet content</font></strong></div>
-					<div class="panel-body">			
-						<div style="width:100%; background-color:#F8F5D8">
-						<p> {{tweet_content}} </p>
-						</div>
-					</div>
-				</div>
-
+				
 				<div class="panel panel-primary">
 					<div class="panel-heading"><strong><font size = 3>Make your choice</font></strong></div>
-					<div class="panel-body">			
-						<form action="">
-						<input type="radio" name = "sa" value="sp"> Strongly Positive <br/>
-						<input type="radio" name = "sa" value="p"> Positive <br/>
-						<input type="radio" name = "sa" value="nt"> Neutral <br/>
-						<input type="radio" name = "sa" value="n"> Negative <br/>
-						<input type="radio" name = "sa" value="sn"> Strongly Negative <br/>						
-						</form>						
+					<div class="panel-body">	
+						{% for hit in tweet_content %}
+									
+							<div style="width:100%; background-color:#F8F5D8">
+							<p> {{hit}} </p>
+							</div>
+							
+							<input type="radio" name = "{{hit}}" value="sp"> Strongly Positive <br/>
+							<input type="radio" name = "{{hit}}" value="p"> Positive <br/>
+							<input type="radio" name = "{{hit}}" value="nt"> Neutral <br/>
+							<input type="radio" name = "{{hit}}" value="n"> Negative <br/>
+							<input type="radio" name = "{{hit}}" value="sn"> Strongly Negative <br/>						
+							</br>
+						{% endfor %}
 					</div>
 				</div>
 				
@@ -87,7 +93,7 @@
 		{% else %}
 			<p class="text-center">
 				<input type="submit" id="submitButton" class="btn btn-primary" disabled value="You must ACCEPT the HIT before you can submit the results." />
-			</p>	
+			</p>
 		{% endif %}
 
 	</body>
