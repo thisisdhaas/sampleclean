@@ -1,3 +1,94 @@
-<h3>HELLO, WORLD!</h3>
-<p>This is worker assignment {{ assignment_id }}</p>
-<p>{{ tweet_content }} </p>
+
+<html>
+	<head>
+		<title>HIT</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<link href="https://s3.amazonaws.com/mturk-public/bs30/css/bootstrap.min.css" rel="stylesheet" />
+		<section class="container" id="DataCollection" style="margin-bottom:15px; padding: 10px 10px; font-family: Verdana, Geneva, sans-serif; color:#333333; font-size:0.9em;">
+			<font size = 2>
+			<div class="row col-xs-12 col-md-12">
+				<div class="panel panel-primary">
+					<div class="panel-heading"><strong><font size = 3> Instructions </font></strong></div>
+					<div class="panel-body">
+						<p>Select the sentiment for this tweet.</p>
+
+						<ul>
+							<li>
+								<strong> Strongly positive </strong>
+								<p> 
+									Select this if the tweet embodies emotion that was extremely happy or excited toward the topic.  For example, "Their customer service is the best that I've seen!!!!"
+								</p>	
+							</li>
+							<li>
+								<strong> Positive </strong>
+								<p> 
+									Select this if the tweet embodies emotion that was generally happy or satisfied, but the emotion wasn't extreme.  For example, "Sure I'll shop there again."
+								</p>	
+							</li>
+							<li>
+								<strong> Neutral </strong>
+								<p> 
+									Select this if the tweet does not embody much of positive or negative emotion toward the topic.  For example, "Yeah, I guess it's ok." or "Is their customer service open 24x7?"
+								</p>	
+							</li>
+							<li>
+								<strong> Negative </strong>
+								<p> 
+									Select this if the tweet embodies emotion that is perceived to be angry or upsetting toward the topic, but not to the extreme.  For example, "I don't know if I'll shop there again because I don't trust them."
+								</p>	
+							</li>
+							<li>
+								<strong> Strongly negative </strong>
+								<p> 
+									Select this if the tweet embodies negative emotion toward the topic that can be perceived as extreme.  For example, "These guys are teriffic... NOTTTT!!!!!!" or "I will NEVER shop there again!!!"
+								</p>	
+							</li>							
+						</ul>						
+						
+					</div>
+				</div>
+
+				<div class="panel panel-primary">
+					<div class="panel-heading"><strong><font size = 3>Tweet content</font></strong></div>
+					<div class="panel-body">			
+						<div style="width:100%; background-color:#F8F5D8">
+						<p> {{tweet_content}} </p>
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-primary">
+					<div class="panel-heading"><strong><font size = 3>Make your choice</font></strong></div>
+					<div class="panel-body">			
+						<form action="">
+						<input type="radio" name = "sa" value="sp"> Strongly Positive <br/>
+						<input type="radio" name = "sa" value="p"> Positive <br/>
+						<input type="radio" name = "sa" value="nt"> Neutral <br/>
+						<input type="radio" name = "sa" value="n"> Negative <br/>
+						<input type="radio" name = "sa" value="sn"> Strongly Negative <br/>						
+						</form>						
+					</div>
+				</div>
+				
+				<div>
+					<label>Additional Comments</label> 
+					
+					<input class="form-control" id="comment" name="comment" placeholder="Say something ..." type="text" />
+				</div>
+			</div>
+
+			</font>
+		</section>
+		
+		{% if allow_submission %}
+			<p class="text-center">
+				<input type="submit" id="submitButton" class="btn btn-primary" value="Submit" />
+			</p>		
+		{% else %}
+			<p class="text-center">
+				<input type="submit" id="submitButton" class="btn btn-primary" disabled value="You must ACCEPT the HIT before you can submit the results." />
+			</p>	
+		{% endif %}
+
+	</body>
+</html>

@@ -37,29 +37,26 @@ def store_request(request):
     
     
 # A separate view for generating HITs
-# Currently, this is a only test view for creating HITs with sample tweets
+@require_GET
 def hits_gen(request):
-    
-    # Read from file
-    input_file_name = os.path.join(os.path.dirname(__file__), 'tweets.json')
-    input_file = file(input_file_name, 'r')
-    
-    lines = input_file.readlines()
-    json_array = lines[0]
-    
-    json_array = json.loads(json_array)
-    
-    # Create sample HITs
-    for i in range(5) :
-        
-        # Create a new hit and get its HIT Id
-        additional_options = {}
-        current_hit_id = create_hit(additional_options)
+    '''
+        This view receives GET parameters and creates corresponding HITs. (Temporarily use GET for debugging)
+        Get parameters :
+	    `type` : The type of this hit; 
+	    `tweet_content` : The tweet content for sentiment analysis;
+    '''
+    # Parse information contained in the URL
+    hit_type = request.GET.get('type')
+    tweet_content = request.GET.get('tweet_content')
+
+    # Using boto API to create an AMT HIT
+    additional_options = {}
+    current_hit_id = create_hit(additional_options)
             
-        # Save this hit to the database
-        store_hit('sa', json_array[i], datetime.now(), current_hit_id)
-        
-    return HttpResponse('ok')
+    # Save this HIT to the database
+    store_hit(hit_type, tweet_content, datetime.now(), current_hit_id)
+    
+    return HttpResponse(current_hit_id)
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in
@@ -77,6 +74,9 @@ def get_assignment(request):
     # this request is for a preview of the task: we shouldn't allow submission.
     if assignment_id == AMT_NO_ASSIGNMENT_ID:
         assignment_id = None
+        allow_submission = False
+    else:
+        allow_submission = True
 
     # Retrieve the tweet based on hit_id from the database
     
@@ -99,8 +99,8 @@ def get_assignment(request):
     if assignment_id != None:
         store_request(request)
     
-    # Build relationships between workers and HITs
-    if current_worker != None:
+    # Build relationships between workers and HITs (when a worker accepts this hit)
+    if current_worker != None and assignment_id != None:
         current_worker.hits.add(current_hit)
 
     # Check the number of HITs this worker has accepted. A threshold needs to be tuned.
@@ -110,10 +110,11 @@ def get_assignment(request):
         print 0
     
     # Render the template
-    context = {'assignment_id': assignment_id, 'tweet_content': tweet_content}
+    context = {'assignment_id' : assignment_id,
+               'tweet_content' : tweet_content,
+               'allow_submission' : allow_submission
+                }
     return render(request, 'amt/assignment.html', context)
-
-
 
 
 # When workers submit assignments, we should send data to this view via AJAX
