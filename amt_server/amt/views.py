@@ -78,7 +78,7 @@ def hits_gen(request):
         # Save this HIT to the database
         store_hit(hit_type, tweet_content[i], datetime.now(), current_hit_id)
         
-    return HttpResponse('%s HITs have been succesfully created.' % len(tweet_content))
+    return HttpResponse('%s HITs have been successfully created.' % len(tweet_content))
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in

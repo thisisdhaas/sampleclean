@@ -4,9 +4,26 @@
 		<script type='text/javascript' src='//code.jquery.com/jquery-1.11.0.js'></script>
 		<script type="text/javascript">	
 			
+			function submit_results()
+			{
+				var div_elements = document.getElementsByTagName('div');
+				var input_elements = document.getElementsByTagName('input');
+
+				var tweets = []
+				var answers = []
+				for (var i = 0; i < div_elements.length; i ++)
+					if (div_elements[i].id.substring(0, 5) == "tweet")
+						tweets[tweets.length] = div_elements[i].id.substring(6);
+				for (var i = 0; i < input_elements.length; i ++)
+					if (input_elements[i].type == "radio" && input_elements[i].checked == true)
+						answers[answers.length] = intput_elements[i].value;
+			}
 			$(document).ready(function()
 			{
-
+				$("#submitButton").click(function()
+				{
+					submit_results()
+				}
 			});	
 		</script>
 		
@@ -61,11 +78,11 @@
 					<div class="panel-heading"><strong><font size = 3>Make your choice</font></strong></div>
 					<div class="panel-body">	
 						{% for hit in tweet_content %}
-									
-							<div style="width:100%; background-color:#F8F5D8">
+
+							<div style="width:100%; background-color:#F8F5D8" id = "tweet_{{hit}}">
 							<p> {{hit}} </p>
 							</div>
-							
+
 							<input type="radio" name = "{{hit}}" value="sp"> Strongly Positive <br/>
 							<input type="radio" name = "{{hit}}" value="p"> Positive <br/>
 							<input type="radio" name = "{{hit}}" value="nt"> Neutral <br/>
