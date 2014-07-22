@@ -40,9 +40,9 @@ APIs:
 
 * Create a group of AMT HITs(GET method):
 
-	`type` : The type of this hit, e.g, 'sa' for sentiment analysis.
+	- **type** : The type of this hit, e.g, 'sa' for sentiment analysis.
 	
-	`tweet_content` :
+	- **tweet_content** :
 
 		The tweet content for sentiment analysis, a JSON array of JSON arrays, 
 		e.g, the following JSON array :
@@ -53,10 +53,10 @@ APIs:
 			1) No \ before the double quotes that surround the HITs;
 			2) Make sure to put a \ before the double quotes that surround the tweets.
 
-	'num_assignment' : The number of assignments for each HIT.
+	- **num_assignment** : The number of assignments for each HIT.
 	
-	'group_id' : A string used to specify the ID of this group of HITs.
+	- **group_id** : A string used to specify the ID of this group of HITs.
 
-	'callback_url' : The call back url
+	- **callback_url** : The call back url
 
 * Send the results to the callback URL:
