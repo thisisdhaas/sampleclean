@@ -49,7 +49,6 @@ APIs:
 		e.g, the following JSON array :
 		
 			["[\"Arsenal won the 4th again!\", \"Theo Walcott broke the ligament in his knee last season.\"]", 
-			
 			"[\"Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful.\"]"]
 			
 		will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
