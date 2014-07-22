@@ -157,16 +157,11 @@ def get_assignment(request):
 @csrf_exempt
 def post_response(request):
 
-    print 'hahahahaha'
     # Extract data from the request 
     answers = request.POST['answers']
     hit_id = request.POST['HITId']
     worker_id = request.POST['workerId']
     assignment_id = request.POST['assignmentId']
-
-    print hit_id
-    print assignment_id
-    print answers
     
     # Retrieve the corresponding HIT from the database based on the HITId
     current_hit = HIT.objects.filter(HITId = hit_id)[0]
@@ -176,19 +171,6 @@ def post_response(request):
 
     # Store this response into the database
     store_response(current_hit, current_worker, answers)
-
-    # Notify the Amazon Server
-    query_args = {'assignmentId' : assignment_id}
-    post_url = (settings.POST_BACK_AMT_SANDBOX
-           if settings.AMT_SANDBOX else settings.POST_BACK_AMT)
-    post_data = urllib.urlencode(query_args)
-    print post_data
-    request = urllib2.Request(post_url, post_data)
-    response = urllib2.urlopen(request)
-
-    html = response.read()
-    print assignment_id
-    print html
     
     # TODO: decide if we're done with this HIT, and if so, publish the result.
 
