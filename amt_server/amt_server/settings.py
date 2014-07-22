@@ -17,12 +17,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 AMT_SANDBOX = True # run on the sandbox, or on the real deal?
 AMT_SANDBOX_HOST = 'mechanicalturk.sandbox.amazonaws.com'
 AMT_HOST = 'mechanicalturk.amazonaws.com'
+POST_BACK_AMT = 'https://www.mturk.com/mturk/externalSubmit'
+POST_BACK_AMT_SANDBOX = 'https://workersandbox.mturk.com/mturk/externalSubmit'
+
 AMT_DEFAULT_HIT_OPTIONS = { # See documentation in amt/connection.py:create_hit
     'view': 'amt:get_assignment',
     'title': 'Generic HIT',
     'description': 'This is a HIT to run on AMT.',
     'reward': 0.03,
-    'duration': 5,
+    'duration': 60,
     'num_responses': 3,
     'frame_height': 800,
     'use_https': True,

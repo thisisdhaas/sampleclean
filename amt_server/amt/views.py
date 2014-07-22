@@ -1,10 +1,14 @@
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 from connection import create_hit, AMT_NO_ASSIGNMENT_ID
 from django.http import HttpResponse
+from django.conf import settings
 from datetime import datetime
 from models import *
+import urllib2
+import urllib
 import json
 import os
 
@@ -20,6 +24,12 @@ def store_worker(_worker_id):
     current_worker = Worker(worker_id = _worker_id)
     current_worker.save()
 
+# Store the information of a response
+def store_response(_hit, _worker, _content):
+    
+    current_response = Response(hit = _hit, worker = _worker, content = _content)
+    current_response.save()
+    
 # Store the information of an acceptance
 def store_request(request):
 
@@ -144,14 +154,42 @@ def get_assignment(request):
 # When workers submit assignments, we should send data to this view via AJAX
 # before submitting to AMT.
 @require_POST
+@csrf_exempt
 def post_response(request):
 
-    # TODO: extract data from the request--must correspond to the format of the
-    # frontend AJAX call.
-    data = request.POST.get('important_data_field')
+    print 'hahahahaha'
+    # Extract data from the request 
+    answers = request.POST['answers']
+    hit_id = request.POST['HITId']
+    worker_id = request.POST['workerId']
+    assignment_id = request.POST['assignmentId']
 
-    # TODO: convert to model objects and write to the database
+    print hit_id
+    print assignment_id
+    print answers
+    
+    # Retrieve the corresponding HIT from the database based on the HITId
+    current_hit = HIT.objects.filter(HITId = hit_id)[0]
 
+    # Retrieve the worker from the database based on the workerId
+    current_worker = Worker.objects.filter(worker_id = worker_id)[0]
+
+    # Store this response into the database
+    store_response(current_hit, current_worker, answers)
+
+    # Notify the Amazon Server
+    query_args = {'assignmentId' : assignment_id}
+    post_url = (settings.POST_BACK_AMT_SANDBOX
+           if settings.AMT_SANDBOX else settings.POST_BACK_AMT)
+    post_data = urllib.urlencode(query_args)
+    print post_data
+    request = urllib2.Request(post_url, post_data)
+    response = urllib2.urlopen(request)
+
+    html = response.read()
+    print assignment_id
+    print html
+    
     # TODO: decide if we're done with this HIT, and if so, publish the result.
 
     return HttpResponse('ok') # AJAX call succeded.

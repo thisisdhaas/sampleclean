@@ -6,6 +6,7 @@
 			
 			function submit_results()
 			{
+				//Extract the HITs and the answers
 				var div_elements = document.getElementsByTagName('div');
 				var input_elements = document.getElementsByTagName('input');
 
@@ -16,14 +17,53 @@
 						tweets[tweets.length] = div_elements[i].id.substring(6);
 				for (var i = 0; i < input_elements.length; i ++)
 					if (input_elements[i].type == "radio" && input_elements[i].checked == true)
-						answers[answers.length] = intput_elements[i].value;
-			}
+						answers[answers.length] = input_elements[i].value; 
+
+				//check if the worker has finished all the work
+				if (answers.length != tweets.length)
+				{
+					alert("Please select on every tweet before submitting. Thanks!");
+					return ;
+				}
+				
+				//Extract the HITId
+				var paramstr = window.location.search.substring(1);
+				var parampairs = paramstr.split("&");
+				var HITId;
+				var workerId;
+				var assignmentId; 
+
+				for (i in parampairs)
+				{
+					var pair = parampairs[i].split("=");
+					if (pair[0] == "hitId")
+						HITId = pair[1];
+					else if (pair[0] == "assignmentId")
+						assignmentId = pair[1];
+					else if (pair[0] == "workerId")
+						workerId = pair[1]
+				}
+				
+				alert(HITId + " " + assignmentId + " " + workerId);
+				//Send a post request
+				$.post("/amt/responses/",
+						{
+							answers : answers.join(","),
+							HITId : HITId,
+							workerId : workerId,
+							assignmentId : assignmentId
+						},
+						
+						function(data, status)
+						{
+				 		});	
+			} 
 			$(document).ready(function()
 			{
 				$("#submitButton").click(function()
 				{
-					submit_results()
-				}
+					submit_results();
+				});
 			});	
 		</script>
 		
