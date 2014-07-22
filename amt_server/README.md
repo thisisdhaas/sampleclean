@@ -36,8 +36,8 @@ Thing to do to get up and running:
   (https://workersandbox.mturk.com/mturk/searchbar) and verify that you can
   accept the HIT and that it displays correctly in AMT's iframe.
 
-APIs:
-
+Web Service APIs
+=============
 * Create a group of AMT HITs(GET method):
 
 	- **type** : The type of this hit, e.g, 'sa' for sentiment analysis.
