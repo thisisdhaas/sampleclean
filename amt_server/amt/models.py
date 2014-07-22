@@ -1,14 +1,21 @@
 from django.db import models
 
-# Create your models here.
+# Model for a group, which contains a bunch of HITs
+class Group(models.Model):
 
-# We'll need, at a minimum:
-#
-# a model for Workers
-# a model for worker Responses
-# a model for HITs
+    # The group id
+    group_id = models.TextField(primary_key = True)
 
+    # The number of HITs in this group that have been finished
+    HIT_finished = models.IntegerField()
 
+    # The call back URL
+    callback_url = models.TextField()
+    
+    def __unicode__(self):
+        return self.group_id
+    
+    
 # Model for HITs
 class HIT(models.Model):
 
@@ -23,6 +30,12 @@ class HIT(models.Model):
     
     # HITId 
     HITId = models.TextField(primary_key = True)
+
+    # The group that this HIT belongs to, a many-to-one relationship
+    group = models.ForeignKey(Group)
+
+    # The number of assignments for this HIT.
+    num_assignment = models.IntegerField()
     
     def __unicode__(self):
         return self.type + " : " + self.content

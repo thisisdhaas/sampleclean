@@ -7,15 +7,26 @@ from django.http import HttpResponse
 from django.conf import settings
 from datetime import datetime
 from models import *
-import urllib2
-import urllib
 import json
 import os
 
-# Store a hit into the database
-def store_hit(_type, _content, _create_time, _HITId):
+# Store a group into the database
+def store_group(_group_id, _HIT_finished, _callback_url):
 
-    current_hit = HIT(type = _type, content = _content, create_time = _create_time, HITId = _HITId)
+    current_group = Group(group_id = _group_id,
+                          HIT_finished = _HIT_finished,
+                          callback_url = _callback_url)
+    current_group.save()
+    
+# Store a hit into the database
+def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment):
+
+    current_hit = HIT(type = _type,
+                      content = _content,
+                      create_time = _create_time,
+                      HITId = _HITId,
+                      group = _group,
+                      num_assignment = _num_assignment)
     current_hit.save()
 
 # Store the information of a worker into the database
@@ -27,7 +38,9 @@ def store_worker(_worker_id):
 # Store the information of a response
 def store_response(_hit, _worker, _content):
     
-    current_response = Response(hit = _hit, worker = _worker, content = _content)
+    current_response = Response(hit = _hit,
+                                worker = _worker,
+                                content = _content)
     current_response.save()
     
 # Store the information of an acceptance
@@ -42,7 +55,9 @@ def store_request(request):
     for key, value in request.POST.iteritems():
         request_dict[key] = value
       
-    current_request = Request(path = request.get_full_path(), post_json = json.dumps(request_dict), recv_time = datetime.now())
+    current_request = Request(path = request.get_full_path(),
+                              post_json = json.dumps(request_dict),
+                              recv_time = datetime.now())
     current_request.save()
     
     
@@ -53,40 +68,56 @@ def hits_gen(request):
         This view receives GET parameters and creates corresponding HITs. (Temporarily use GET for debugging)
         GET parameters :
         
-	    `type` : The type of this hit;
-	    
-	    `tweet_content` :
+            `type` : The type of this hit;
+            
+            `tweet_content` :
 
                 The tweet content for sentiment analysis, a JSON array of JSON arrays, 
-		e.g, the following JSON array :
+                e.g, the following JSON array :
                     ["[\"Arsenal won the 4th again!\", \"Theo Walcott broke the ligament in his knee last season.\"]", 
                     "[\"Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful.\"]"]
-		will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
-		Be careful on the delimeters :
+                will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
+                Be careful on the delimeters :
                     1) No \ before the double quotes that surround the HITs;
                     2) Make sure to put a \ before the double quotes that surround the tweets.
-		
-	    'group_id' : An interger used to specify the ID of this group of HITs.
-	    
-	    'callback_url' : The call back url
+
+            'num_assignment' : The number of assignments for each HIT.
+            
+            'group_id' : A string used to specify the ID of this group of HITs.
+
+            'callback_url' : The call back url
+
 		
     '''
     # Parse information contained in the URL
-    hit_type = request.GET.get('type')
+    hit_type = request.GET.get('type') 
     tweet_content = request.GET.get('tweet_content')
     try :
         tweet_content = json.loads(tweet_content)
+        for tweets in tweet_content:
+            json.loads(tweets)
     except :
         return HttpResponse('Wrong format. Try again')
+    num_assignment = request.GET.get('num_assignment')
+    group_id = request.GET.get('group_id')
+    callback_url = request.GET.get('callback_url')
+
+    # Update num_assignment
+    if num_assignment == None:
+        num_assignment = 3
+
+    # Store the current group into the database
+    store_group(group_id, 0, callback_url);
+    current_group = Group.objects.filter(group_id = group_id)[0]
 
     for i in range(len(tweet_content)) :
         
         # Using boto API to create an AMT HIT
-        additional_options = {}
+        additional_options = {'num_responses' : num_assignment}
         current_hit_id = create_hit(additional_options)
 
         # Save this HIT to the database
-        store_hit(hit_type, tweet_content[i], datetime.now(), current_hit_id)
+        store_hit(hit_type, tweet_content[i], datetime.now(), current_hit_id, current_group, num_assignment)
         
     return HttpResponse('%s HITs have been successfully created.' % len(tweet_content))
 
@@ -118,7 +149,7 @@ def get_assignment(request):
         tweet_content = current_hit.content
     else:
         current_hit = None
-        tweet_content = '[No task available at this moment!]'
+        tweet_content = '["No task available at this moment!"]'
 
     tweet_content = json.loads(tweet_content)
     
@@ -173,5 +204,6 @@ def post_response(request):
     store_response(current_hit, current_worker, answers)
     
     # TODO: decide if we're done with this HIT, and if so, publish the result.
+    
 
     return HttpResponse('ok') # AJAX call succeded.
