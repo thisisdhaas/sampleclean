@@ -45,12 +45,19 @@ APIs:
 	- **tweet_content** :
 
 		The tweet content for sentiment analysis, a JSON array of JSON arrays, 
+		
 		e.g, the following JSON array :
+		
 			["[\"Arsenal won the 4th again!\", \"Theo Walcott broke the ligament in his knee last season.\"]", 
+			
 			"[\"Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful.\"]"]
+			
 		will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
+		
 		Be careful on the delimeters :
+		
 			1) No \ before the double quotes that surround the HITs;
+			
 			2) Make sure to put a \ before the double quotes that surround the tweets.
 
 	- **num_assignment** : The number of assignments for each HIT.
