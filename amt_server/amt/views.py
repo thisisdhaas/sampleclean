@@ -94,8 +94,6 @@ def hits_gen(request):
     tweet_content = request.GET.get('tweet_content')
     try :
         tweet_content = json.loads(tweet_content)
-        for tweets in tweet_content:
-            json.loads(tweets)
     except :
         return HttpResponse('Wrong format. Try again')
     num_assignment = request.GET.get('num_assignment')
@@ -116,8 +114,21 @@ def hits_gen(request):
         additional_options = {'num_responses' : num_assignment}
         current_hit_id = create_hit(additional_options)
 
+        # Make tweet_content become a JSON array
+        current_tweet_content = '['
+        for j in range(len(tweet_content[i]) - 1):
+            current_tweet_content = current_tweet_content + '\"' + tweet_content[i][j] + '\", '
+        current_tweet_content = current_tweet_content + '\"' + tweet_content[i][len(tweet_content[i]) - 1] + '\"]'
+
+        print current_tweet_content
+        # Check format
+        try :
+            json.loads(current_tweet_content)
+        except :
+            return HttpResponse('Wrong format. Try again')
+        
         # Save this HIT to the database
-        store_hit(hit_type, tweet_content[i], datetime.now(), current_hit_id, current_group, num_assignment)
+        store_hit(hit_type, current_tweet_content, datetime.now(), current_hit_id, current_group, num_assignment)
         
     return HttpResponse('%s HITs have been successfully created.' % len(tweet_content))
 
@@ -193,6 +204,8 @@ def post_response(request):
     hit_id = request.POST['HITId']
     worker_id = request.POST['workerId']
     assignment_id = request.POST['assignmentId']
+
+    print answers
     
     # Retrieve the corresponding HIT from the database based on the HITId
     current_hit = HIT.objects.filter(HITId = hit_id)[0]
