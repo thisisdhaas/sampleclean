@@ -60,77 +60,115 @@ def store_request(request):
                               recv_time = datetime.now())
     current_request.save()
     
+# Check the format of a request
+def check_format(json_dict):
+
+    try :
+        json_dict = json.loads(json_dict)
+        if not 'type' in json_dict :
+            return False
+        if not 'group_id' in json_dict :
+            return False
+        if not 'callback_url' in json_dict :
+            return False
+        if not 'content' in json_dict :
+            return False
+    except :
+        return False
+    
+    return True
+
+def convert(input):
+    if isinstance(input, dict):
+        return {convert(key): convert(value) for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [convert(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
     
 # A separate view for generating HITs
 @require_GET
 def hits_gen(request):
     '''
-        This view receives GET parameters and creates corresponding HITs. (Temporarily use GET for debugging)
-        GET parameters :
+        Create a group of AMT HITs(**GET** method). There is only a single field, 'data', which maps to a json string:
+
+    - **type** : The type of this hit, e.g, 'sa' for sentiment analysis.
+    
+    - **content** :
+
+        The tweet content for sentiment analysis, a JSON array of JSON arrays, 
         
-            `type` : The type of this hit;
+        e.g, the following JSON array :
+        
+            [["Arsenal won the 4th again!", "Theo Walcott broke the ligament in his knee last season."], 
+            ["Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."]]
             
-            `tweet_content` :
+        will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
+        
 
-                The tweet content for sentiment analysis, a JSON array of JSON arrays, 
-                e.g, the following JSON array :
-                    ["[\"Arsenal won the 4th again!\", \"Theo Walcott broke the ligament in his knee last season.\"]", 
-                    "[\"Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful.\"]"]
-                will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
-                Be careful on the delimeters :
-                    1) No \ before the double quotes that surround the HITs;
-                    2) Make sure to put a \ before the double quotes that surround the tweets.
+    - **num_assignment** : The number of assignments for each HIT.
+    
+    - **group_id** : A string used to specify the ID of this group of HITs.
 
-            'num_assignment' : The number of assignments for each HIT.
-            
-            'group_id' : A string used to specify the ID of this group of HITs.
-
-            'callback_url' : The call back url
-
-		
+    - **callback_url** : The call back url
+        
     '''
-    # Parse information contained in the URL
-    hit_type = request.GET.get('type') 
-    tweet_content = request.GET.get('tweet_content')
-    try :
-        tweet_content = json.loads(tweet_content)
-    except :
-        return HttpResponse('Wrong format. Try again')
-    num_assignment = request.GET.get('num_assignment')
-    group_id = request.GET.get('group_id')
-    callback_url = request.GET.get('callback_url')
+    # Parse information contained in the URL & basic check for format
+    json_dict = request.GET.get('data')
+    # Check if it has correct format
+    if (not check_format(json_dict)) :
+        return HttpResponse('Wrong format! Try again')
 
+    # Loads the JSON string to a dictionary
+    json_dict = json.loads(json_dict)
+    
     # Update num_assignment
-    if num_assignment == None:
-        num_assignment = 3
+    if not 'num_assignment' in json_dict :
+        json_dict['num_assignment'] = 3
+
+    # Retrieve specific data    
+    hit_type = json_dict['type']
+    num_assignment = json_dict['num_assignment']
+    group_id = json_dict['group_id']
+    callback_url = json_dict['callback_url']
+    content = json_dict['content']
 
     # Store the current group into the database
     store_group(group_id, 0, callback_url);
     current_group = Group.objects.filter(group_id = group_id)[0]
 
-    for i in range(len(tweet_content)) :
+    for i in range(len(content)) :
         
         # Using boto API to create an AMT HIT
         additional_options = {'num_responses' : num_assignment}
         current_hit_id = create_hit(additional_options)
 
-        # Make tweet_content become a JSON array
-        current_tweet_content = '['
-        for j in range(len(tweet_content[i]) - 1):
-            current_tweet_content = current_tweet_content + '\"' + tweet_content[i][j] + '\", '
-        current_tweet_content = current_tweet_content + '\"' + tweet_content[i][len(tweet_content[i]) - 1] + '\"]'
+        # Sentiment Analysis
+        if (hit_type == 'sa') :
 
-        print current_tweet_content
-        # Check format
-        try :
-            json.loads(current_tweet_content)
-        except :
-            return HttpResponse('Wrong format. Try again')
-        
+            current_content = str(convert(content[i])).replace("\'", "\"")
+            # Check format
+            try :
+                json.loads(current_content)
+            except :
+                return HttpResponse('Wrong format! Try again')
+
+        # Entity Resolution
+        elif (hit_type == 'er'):
+
+            current_content = str(convert(content[i])).replace("\'", "\"")
+            # Check format    
+            try :                
+                json.loads(current_content)
+            except :
+                return HttpResponse('Wrong format! Try again')
+                
         # Save this HIT to the database
-        store_hit(hit_type, current_tweet_content, datetime.now(), current_hit_id, current_group, num_assignment)
-        
-    return HttpResponse('%s HITs have been successfully created.' % len(tweet_content))
+        store_hit(hit_type, current_content, datetime.now(), current_hit_id, current_group, num_assignment)
+                
+    return HttpResponse('%s HITs have been successfully created.' % len(content))
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in
@@ -157,12 +195,12 @@ def get_assignment(request):
     current_hit = HIT.objects.filter(HITId = hit_id)
     if len(current_hit) != 0:
         current_hit = current_hit[0]
-        tweet_content = current_hit.content
+        content = current_hit.content
     else:
         current_hit = None
-        tweet_content = '["No task available at this moment!"]'
+        content = '["No task available at this moment!"]'
 
-    tweet_content = json.loads(tweet_content)
+    content = json.loads(content)
     
     # Save the information of this worker
     if worker_id != None:
@@ -187,7 +225,7 @@ def get_assignment(request):
     
     # Render the template
     context = {'assignment_id' : assignment_id,
-               'tweet_content' : tweet_content,
+               'tweet_content' : content,
                'allow_submission' : allow_submission
                 }
     return render(request, 'amt/assignment.html', context)

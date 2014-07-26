@@ -38,11 +38,11 @@ Thing to do to get up and running:
 
 Web Service APIs
 =============
-* Create a group of AMT HITs(**GET** method):
+* Create a group of AMT HITs(**GET** method). There is only a single field, 'data', which maps to a json string:
 
 	- **type** : The type of this hit, e.g, 'sa' for sentiment analysis.
 	
-	- **tweet_content** :
+	- **content** :
 
 		The tweet content for sentiment analysis, a JSON array of JSON arrays, 
 		
