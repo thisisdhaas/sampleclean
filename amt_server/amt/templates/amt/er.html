@@ -1,0 +1,21 @@
+    {% for comparison in er_content %}
+      <table id="hit" border="1" cellspacing="0" cellpadding="3">
+        <thead>
+            <tr>
+            {% for field in comparison.fields %}
+                <th>{{field}}</th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in comparison.record %}
+            <tr>
+                {% for attribute in record %}
+                    <td>{{attribute}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+	  
+	{% endfor %}

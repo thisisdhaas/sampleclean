@@ -159,6 +159,7 @@ def hits_gen(request):
         elif (hit_type == 'er'):
 
             current_content = str(convert(content[i])).replace("\'", "\"")
+            print current_content
             # Check format    
             try :                
                 json.loads(current_content)
@@ -222,13 +223,20 @@ def get_assignment(request):
         print current_worker.hits.count()
     else:
         print 0
-    
+
+    print content
     # Render the template
-    context = {'assignment_id' : assignment_id,
-               'tweet_content' : content,
-               'allow_submission' : allow_submission
-                }
-    return render(request, 'amt/assignment.html', context)
+    if (current_hit != None and current_hit.type == 'sa') :
+        context = {'assignment_id' : assignment_id,
+                   'tweet_content' : content,
+                   'allow_submission' : allow_submission
+                    }
+        return render(request, 'amt/sa.html', context)
+    else :
+        context = {'assignment_id' : assignment_id,
+                   'er_content' : content,
+                   'allow_submission' : allow_submission}
+        return render(request, 'amt/er.html', context)
 
 
 # When workers submit assignments, we should send data to this view via AJAX
