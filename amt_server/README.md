@@ -69,5 +69,8 @@ Web Service APIs
 	- **group_id** : A string used to specify the ID of this group of HITs.
 
 	- **callback_url** : The call back url
+	
+	An example :
+		https://localhost:8000/amt/hitsgen/?data={"type":"er","group_id":"haha","callback_url":"google.com","content":[[{"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}]]}
 
 * Send the results to the callback URL:
