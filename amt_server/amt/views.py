@@ -138,7 +138,6 @@ def hits_gen(request):
         elif (hit_type == 'er'):
 
             current_content = str(convert(content[i])).replace("\'", "\"")
-            print current_content
             # Check format    
             try :                
                 json.loads(current_content)
@@ -203,7 +202,6 @@ def get_assignment(request):
     else:
         print 0
 
-    print content
     # Render the template
     if (current_hit != None and current_hit.type == 'sa') :
         context = {'assignment_id' : assignment_id,
