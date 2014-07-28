@@ -92,28 +92,7 @@ def convert(input):
 @require_GET
 def hits_gen(request):
     '''
-        Create a group of AMT HITs(**GET** method). There is only a single field, 'data', which maps to a json string:
-
-    - **type** : The type of this hit, e.g, 'sa' for sentiment analysis.
-    
-    - **content** :
-
-        The tweet content for sentiment analysis, a JSON array of JSON arrays, 
-        
-        e.g, the following JSON array :
-        
-            [["Arsenal won the 4th again!", "Theo Walcott broke the ligament in his knee last season."], 
-            ["Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."]]
-            
-        will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
-        
-
-    - **num_assignment** : The number of assignments for each HIT.
-    
-    - **group_id** : A string used to specify the ID of this group of HITs.
-
-    - **callback_url** : The call back url
-        
+        See README.md        
     '''
     # Parse information contained in the URL & basic check for format
     json_dict = request.GET.get('data')

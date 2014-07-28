@@ -40,7 +40,7 @@ Web Service APIs
 =============
 * Create a group of AMT HITs(**GET** method). There is only a single field, 'data', which maps to a json string:
 
-	- **type** : The type of this hit, e.g, 'sa' for sentiment analysis.
+	- **type** : The type of this hit, e.g, 'sa' for sentiment analysis, 'er' for entity resolution
 	
 	- **content** :
 
