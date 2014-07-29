@@ -48,25 +48,25 @@ Web Service APIs
 
      One of the following two things:
 		
-			  1) The tweet content for sentiment analysis, a JSON array of JSON arrays, 
+		1) The tweet content for sentiment analysis, a JSON array of JSON arrays, 
 						
-			   e.g, the following JSON array :
+		   e.g, the following JSON array :
 						
 				[["Arsenal won the 4th again!", "Theo Walcott broke the ligament in his knee last season."], 
 				["Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."]]
 							
-			   will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
+		   will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
 					
-			  2) Records for entity resolution, a JSON array of JSON arrays, 
+		2) Records for entity resolution, a JSON array of JSON arrays, 
 					
-			   e.g,
+		   e.g, the following JSON dictionary
 				[
 				 [
 				  {"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}, 
 				  {"fields":["name","age"],"record":[["Jenkinson","22"],["wenbo","21"]]}
 				 ]
 				]
-			   will create one HIT with two entity resolution tasks.
+		   will create one HIT with two entity resolution tasks.
 
  - **num_assignment** : The number of assignments for each HIT.
 	
@@ -75,16 +75,16 @@ Web Service APIs
  - **callback_url** : The call back url
 	
  An example :  
-  https://localhost:8000/amt/hitsgen/?data={"type":"er","group_id":"haha","callback_url":"google.com","content":[[{"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}]]}
+			https://localhost:8000/amt/hitsgen/?data={"type":"er","group_id":"haha","callback_url":"google.com","content":[[{"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}]]}
 	
  The direct response for this request is a simple JSON dictionary :
 		
-  {"status":"ok"} 
-			
-   means the format is correct;
-			
-  {"status":"wrong"} 
-			
-   means the format is incorrect, may be attributed to wrong format of the content field or miss of other importan fields.
+		  +{"status":"ok"} 
+					
+			means the format is correct;
+					
+		  +{"status":"wrong"} 
+					
+			means the format is incorrect, may be attributed to wrong format of the content field or miss of other importan fields.
 		
 * Send the results to the callback URL:
