@@ -79,12 +79,12 @@ Web Service APIs
 	
  The direct response for this request is a simple JSON dictionary :
 		
-		  +{"status":"ok"} 
-					
-			means the format is correct;
-					
-		  +{"status":"wrong"} 
-					
-			means the format is incorrect, may be attributed to wrong format of the content field or miss of other importan fields.
+  + {"status":"ok"} 
+			
+	     means the format is correct;
+			
+  + {"status":"wrong"} 
+			
+	     means the format is incorrect, may be attributed to wrong format of the content field or miss of other importan fields.
 		
 * Send the results to the callback URL:
