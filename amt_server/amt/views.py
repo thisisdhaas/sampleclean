@@ -105,7 +105,6 @@ def make_mv_answer(current_hit) :
     else :
 
         mv_answer = []
-
         # For each task
         for i in range(len(answers[0])) :
             
@@ -152,11 +151,15 @@ def hits_gen(request):
     '''
         See README.md        
     '''
+    # Response dictionaries
+    correct_response = json.dumps({'status' : 'ok'})
+    wrong_response = json.dumps({'status' : 'wrong'})
+    
     # Parse information contained in the URL
     json_dict = request.GET.get('data')
     # Check if it has correct format
     if (not check_format(json_dict)) :
-        return HttpResponse('Wrong format! Try again')
+        return HttpResponse(wrong_response)
 
     # Loads the JSON string to a dictionary
     json_dict = json.loads(json_dict)
@@ -171,6 +174,8 @@ def hits_gen(request):
     group_id = json_dict['group_id']
     callback_url = json_dict['callback_url']
     content = json_dict['content']
+    if (len(content) == 0) :
+        return HttpResponse(wrong_response)
 
     # Store the current group into the database
     store_group(group_id, 0, callback_url);
@@ -190,7 +195,7 @@ def hits_gen(request):
             try :
                 json.loads(current_content)
             except :
-                return HttpResponse('Wrong format! Try again')
+                return HttpResponse(wrong_response)
 
         # Entity Resolution
         elif (hit_type == 'er'):
@@ -200,12 +205,12 @@ def hits_gen(request):
             try :                
                 json.loads(current_content)
             except :
-                return HttpResponse('Wrong format! Try again')
+                return HttpResponse(wrong_response)
                 
         # Save this HIT to the database
         store_hit(hit_type, current_content, datetime.now(), current_hit_id, current_group, num_assignment, i)
                 
-    return HttpResponse('%s HIT(s) have been successfully created.' % len(content))
+    return HttpResponse(correct_response)
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in
@@ -310,4 +315,5 @@ def post_response(request):
     # Check if the group to which this HIT belongs has been finished
     if current_hit.group.HIT_finished == current_hit.group.hit_set.count() :
         submit_callback_answer(current_hit.group)
+
     return HttpResponse('ok') # AJAX call succeded.
