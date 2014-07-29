@@ -34,8 +34,14 @@ class HIT(models.Model):
     # The group that this HIT belongs to, a many-to-one relationship
     group = models.ForeignKey(Group)
 
+    # The order in the group
+    group_number = models.IntegerField()
+
     # The number of assignments for this HIT.
     num_assignment = models.IntegerField()
+
+    # Answer based on majority vote
+    mv_answer = models.TextField()
     
     def __unicode__(self):
         return self.type + " : " + self.content
@@ -63,6 +69,9 @@ class Response(models.Model):
     
     # The content of the response (currently only a text, e.g, 'Positive' or 'Negative' for sentiment analysis)
     content = models.TextField()
+
+    # The assignment id of this response
+    assignment_id = models.TextField()
     
     def __unicode__(self):
         return self.hit + " " + self.worker

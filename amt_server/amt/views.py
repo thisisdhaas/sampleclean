@@ -19,14 +19,15 @@ def store_group(_group_id, _HIT_finished, _callback_url):
     current_group.save()
     
 # Store a hit into the database
-def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment):
+def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment, _group_number):
 
     current_hit = HIT(type = _type,
                       content = _content,
                       create_time = _create_time,
                       HITId = _HITId,
                       group = _group,
-                      num_assignment = _num_assignment)
+                      num_assignment = _num_assignment,
+                      group_number = _group_number)
     current_hit.save()
 
 # Store the information of a worker into the database
@@ -36,11 +37,12 @@ def store_worker(_worker_id):
     current_worker.save()
 
 # Store the information of a response
-def store_response(_hit, _worker, _content):
+def store_response(_hit, _worker, _content, _assignment_id):
     
     current_response = Response(hit = _hit,
                                 worker = _worker,
-                                content = _content)
+                                content = _content,
+                                assignment_id = _assignment_id)
     current_response.save()
     
 # Store the information of an acceptance
@@ -78,6 +80,7 @@ def check_format(json_dict):
     
     return True
 
+# Deal with unicode
 def convert(input):
     if isinstance(input, dict):
         return {convert(key): convert(value) for key, value in input.iteritems()}
@@ -87,6 +90,61 @@ def convert(input):
         return input.encode('utf-8')
     else:
         return input
+
+# Make a majority vote answer for a HIT
+def make_mv_answer(current_hit) :
+
+    answers = []
+
+    for response in current_hit.response_set.all() :
+        current_content = response.content.split(",")
+        answers.append(current_content)
+        
+    if (len(answers) == 0) :
+        current_hit.mv_answer = ''
+    else :
+
+        mv_answer = []
+
+        # For each task
+        for i in range(len(answers[0])) :
+            
+            count = {}
+            # For each assignment
+            for j in range(len(answers)) :
+                if answers[j][i] in count :
+                    count[answers[j][i]] += 1
+                else :
+                    count[answers[j][i]] = 1
+
+            # Find the mode
+            current_answer = ''
+            max_count = -1
+            for key, value in count.iteritems() :
+                if (value > max_count) :
+                    max_count = value
+                    current_answer = key
+            mv_answer.append(current_answer)
+
+        current_hit.mv_answer = ','.join(mv_answer)
+    current_hit.save()
+        
+
+# Submit the answers to the callback URL
+def submit_callback_answer(current_group) :
+
+    url = current_group.callback_url
+    json_answer = {'group_id' : current_group.group_id}
+    json_answer['answer'] = []
+
+    for i in range(current_group.HIT_finished):
+        
+        HIT = current_group.hit_set.filter(group_number = i)[0]
+        current_mv_answer = HIT.mv_answer.split(',')
+        json_answer['answer'].append(current_mv_answer)
+    
+    print json.dumps(json_answer)
+        
     
 # A separate view for generating HITs
 @require_GET
@@ -94,7 +152,7 @@ def hits_gen(request):
     '''
         See README.md        
     '''
-    # Parse information contained in the URL & basic check for format
+    # Parse information contained in the URL
     json_dict = request.GET.get('data')
     # Check if it has correct format
     if (not check_format(json_dict)) :
@@ -145,9 +203,9 @@ def hits_gen(request):
                 return HttpResponse('Wrong format! Try again')
                 
         # Save this HIT to the database
-        store_hit(hit_type, current_content, datetime.now(), current_hit_id, current_group, num_assignment)
+        store_hit(hit_type, current_content, datetime.now(), current_hit_id, current_group, num_assignment, i)
                 
-    return HttpResponse('%s HITs have been successfully created.' % len(content))
+    return HttpResponse('%s HIT(s) have been successfully created.' % len(content))
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in
@@ -228,8 +286,12 @@ def post_response(request):
     worker_id = request.POST['workerId']
     assignment_id = request.POST['assignmentId']
 
+    # Check if this is a duplicate response
+    if Response.objects.filter(assignment_id = assignment_id).count() > 0 :
+        return HttpResponse('Duplicate!')
+
     print answers
-    
+
     # Retrieve the corresponding HIT from the database based on the HITId
     current_hit = HIT.objects.filter(HITId = hit_id)[0]
 
@@ -237,9 +299,15 @@ def post_response(request):
     current_worker = Worker.objects.filter(worker_id = worker_id)[0]
 
     # Store this response into the database
-    store_response(current_hit, current_worker, answers)
-    
-    # TODO: decide if we're done with this HIT, and if so, publish the result.
-    
+    store_response(current_hit, current_worker, answers, assignment_id)
 
+    # Check if this HIT has been finished 
+    if current_hit.response_set.count() == current_hit.num_assignment  :
+        make_mv_answer(current_hit)
+        current_hit.group.HIT_finished += 1
+        current_hit.group.save()
+        
+    # Check if the group to which this HIT belongs has been finished
+    if current_hit.group.HIT_finished == current_hit.group.hit_set.count() :
+        submit_callback_answer(current_hit.group)
     return HttpResponse('ok') # AJAX call succeded.
