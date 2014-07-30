@@ -93,9 +93,9 @@ Web Service APIs
     means the format is incorrect, may be attributed to wrong format of the content field or miss of other important fields.
   
   
-* Send the results to the callback URL:
+* Send the results to the callback URL(**POST** method):
 
-  - The results are sent back using the **POST** method, consists of a single field, 'data', which maps to a json string :
+  - The results that are sent back consist of a single field, 'data', which maps to a json string :
     - **group_id** : a string specify a group of HITs the results answer
     
     - **answer** : a JSON array consists of the answers for each HIT, exactly in the same order as the corresponding HITs are in the creating process
