@@ -20,7 +20,7 @@ class Group(models.Model):
 class HIT(models.Model):
 
     # The type of the task, Sentiment Analysis, Deduplication, etc
-    type = models.CharField(max_length = 64)  
+    type = models.CharField(max_length = 64)
     
     # The content of the tweet
     content = models.TextField()
@@ -28,14 +28,14 @@ class HIT(models.Model):
     # Creating time
     create_time = models.DateTimeField() 
     
-    # HITId 
+    # AMT HITId 
     HITId = models.TextField(primary_key = True)
 
     # The group that this HIT belongs to, a many-to-one relationship
     group = models.ForeignKey(Group)
 
-    # The order in the group
-    group_number = models.IntegerField()
+    # The identifier
+    identifier = models.TextField()
 
     # The number of assignments for this HIT.
     num_assignment = models.IntegerField()

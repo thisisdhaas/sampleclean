@@ -19,7 +19,7 @@ def store_group(_group_id, _HIT_finished, _callback_url):
     current_group.save()
     
 # Store a hit into the database
-def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment, _group_number):
+def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment, _identifier):
 
     current_hit = HIT(type = _type,
                       content = _content,
@@ -27,7 +27,7 @@ def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment, _g
                       HITId = _HITId,
                       group = _group,
                       num_assignment = _num_assignment,
-                      group_number = _group_number)
+                      identifier = _identifier)
     current_hit.save()
 
 # Store the information of a worker into the database
@@ -75,6 +75,25 @@ def check_format(json_dict):
             return False
         if not 'content' in json_dict :
             return False
+
+        content = json_dict['content']
+        if (len(content) == 0) :
+            return False
+        
+        for i in range(len(content)) :
+
+            # Check if it is a dictionary
+            if not isinstance(content[i], dict) :
+                return False
+            
+            # Check if it contains only a key
+            if (len(content[i].keys()) != 1) :
+                return False
+
+            current_content = content[i][content[i].keys()[0]]
+            current_content = str(convert(current_content)).replace("\'", "\"")
+            json.loads(current_content)
+        
     except :
         return False
     
@@ -130,18 +149,17 @@ def make_mv_answer(current_hit) :
         
 
 # Submit the answers to the callback URL
-def submit_callback_answer(current_group) :
+def submit_callback_answer(current_hit) :
 
-    url = current_group.callback_url
-    json_answer = {'group_id' : current_group.group_id}
-    json_answer['answer'] = []
-
-    for i in range(current_group.HIT_finished):
-        
-        HIT = current_group.hit_set.filter(group_number = i)[0]
-        current_mv_answer = HIT.mv_answer.split(',')
-        json_answer['answer'].append(current_mv_answer)
+    url = current_hit.group.callback_url
     
+    json_answer = {'group_id' : current_hit.group.group_id,
+                   'identifier' : current_hit.identifier}
+
+    current_mv_answer = current_hit.mv_answer.split(',')
+    json_answer['answer'] = current_mv_answer
+
+    print json_answer
     print json.dumps(json_answer)
         
     
@@ -174,8 +192,6 @@ def hits_gen(request):
     group_id = json_dict['group_id']
     callback_url = json_dict['callback_url']
     content = json_dict['content']
-    if (len(content) == 0) :
-        return HttpResponse(wrong_response)
 
     # Store the current group into the database
     store_group(group_id, 0, callback_url);
@@ -187,28 +203,20 @@ def hits_gen(request):
         additional_options = {'num_responses' : num_assignment}
         current_hit_id = create_hit(additional_options)
 
-        # Sentiment Analysis
-        if (hit_type == 'sa') :
-
-            current_content = str(convert(content[i])).replace("\'", "\"")
-            # Check format
-            try :
-                json.loads(current_content)
-            except :
-                return HttpResponse(wrong_response)
-
-        # Entity Resolution
-        elif (hit_type == 'er'):
-
-            current_content = str(convert(content[i])).replace("\'", "\"")
-            # Check format    
-            try :                
-                json.loads(current_content)
-            except :
-                return HttpResponse(wrong_response)
+        # identifier
+        identifier = content[i].keys()[0]
+        
+        # Deal with delimiters
+        current_content = str(convert(content[i][identifier])).replace("\'", "\"")
                 
         # Save this HIT to the database
-        store_hit(hit_type, current_content, datetime.now(), current_hit_id, current_group, num_assignment, i)
+        store_hit(hit_type,
+                  current_content,
+                  datetime.now(),
+                  current_hit_id,
+                  current_group,
+                  num_assignment,
+                  identifier)
                 
     return HttpResponse(correct_response)
 
@@ -307,13 +315,17 @@ def post_response(request):
     store_response(current_hit, current_worker, answers, assignment_id)
 
     # Check if this HIT has been finished 
-    if current_hit.response_set.count() == current_hit.num_assignment  :
+    if current_hit.response_set.count() == current_hit.num_assignment:
+
         make_mv_answer(current_hit)
+
         current_hit.group.HIT_finished += 1
         current_hit.group.save()
+
+        submit_callback_answer(current_hit)
         
-    # Check if the group to which this HIT belongs has been finished
-    if current_hit.group.HIT_finished == current_hit.group.hit_set.count() :
-        submit_callback_answer(current_hit.group)
+    #    Check if the group to which this HIT belongs has been finished
+    #    if current_hit.group.HIT_finished == current_hit.group.hit_set.count() :
+    #        submit_callback_answer(current_hit.group)
 
     return HttpResponse('ok') # AJAX call succeded.
