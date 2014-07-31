@@ -52,24 +52,27 @@ Web Service APIs
     
       One of the following two things:
       
-      1. The tweet content for sentiment analysis, a JSON array of JSON arrays, 
+      1. The tweet content for sentiment analysis, a JSON dictionary, 
           
          e.g, the following JSON array :
           
-               [["Arsenal won the 4th again!", "Theo Walcott broke the ligament in his knee last season."], 
-               ["Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."]]
+               [{"hit1" : ["Arsenal won the 4th again!", "Theo Walcott broke the ligament in his knee last season."]}, 
+                {"hit2" : ["Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."]}]
            
-         will create two HITs in total. The first HIT consists of two tweets and the second one consists of one.
+         will create two HITs in total, the identifiers of which are "hit1" and "hit2" respectively. 
+		 The first HIT consists of two tweets and the second one consists of one.
          
       2. Records for entity resolution, a JSON array of JSON arrays, 
          
              e.g, the following JSON dictionary
 			 
                 [
-                    [
-                         {"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}, 
-                         {"fields":["name","age"],"record":[["Jenkinson","22"],["wenbo","21"]]}
-                    ]
+					{ "hit1" : 
+						[
+							 {"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}, 
+							 {"fields":["name","age"],"record":[["Jenkinson","22"],["wenbo","21"]]}
+						]
+					}
                 ]
              will create one HIT with two entity resolution tasks.
     
@@ -94,8 +97,13 @@ Web Service APIs
   
   
 * Send the results to the callback URL(**POST** method):
-
+  
+  When a HIT gets enough votes from the crowd, the EM/MV answer will be sent back to the call back url.
+  
   - The results that are sent back consist of a single field, 'data', which maps to a json string :
-    - **group_id** : a string specify a group of HITs the results answer
+    - **group_id** : a string specify the group that this HIT belongs to
     
+	- **identifier** : the identifier of the HIT
+	
     - **answer** : a JSON array consists of the answers for each HIT, exactly in the same order as the corresponding HITs are in the creating process
+	
