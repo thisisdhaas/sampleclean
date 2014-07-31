@@ -82,9 +82,14 @@ Web Service APIs
     
     -  **callback_url** : The call back url
 
-  - An example : 
-    > https://localhost:8000/amt/hitsgen/?data={"type":"er","group_id":"haha","callback_url":"google.com","content":[[{"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}]]}
-     
+  - Examples : 
+    > https://localhost:8000/amt/hitsgen/?data={"type":"sa","num_assignment":1,"group_id":"Dan","callback_url":"google.com","content":[{"hit1":["aa","bb"]}]}
+
+	> https://localhost:8000/amt/hitsgen/?data={"type":"er","num_assignment":1,"group_id":"haha","callback_url":"google.com",
+	  "content":[{"hit1":[{"fields":["f1"],"record":[["5"],["6"]]}]},
+				 {"hit2":[{"fields":["f1"],"record":[["5"],["6"]]},{"fields":["f1"],"record":[["5"],["6"]]},{"fields":["f1"],"record":[["5"],["6"]]}]},
+				 {"hit3":[{"fields":["f1"],"record":[["5"],["6"]]},{"fields":["f1"],"record":[["5"],["6"]]}]}]}
+	
   - The direct response for this request is a simple JSON dictionary :
      
     > {"status":"ok"}
