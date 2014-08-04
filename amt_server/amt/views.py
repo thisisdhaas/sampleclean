@@ -6,163 +6,16 @@ from connection import create_hit, AMT_NO_ASSIGNMENT_ID
 from django.http import HttpResponse
 from django.conf import settings
 from datetime import datetime
-from models import *
 import json
 import os
 
-# Store a group into the database
-def store_group(_group_id, _HIT_finished, _callback_url):
 
-    current_group = Group(group_id = _group_id,
-                          HIT_finished = _HIT_finished,
-                          callback_url = _callback_url)
-    current_group.save()
-    
-# Store a hit into the database
-def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment, _identifier):
+from models import *
+from callback import *
+from blend import *
+from store import *
 
-    current_hit = HIT(type = _type,
-                      content = _content,
-                      create_time = _create_time,
-                      HITId = _HITId,
-                      group = _group,
-                      num_assignment = _num_assignment,
-                      identifier = _identifier)
-    current_hit.save()
-
-# Store the information of a worker into the database
-def store_worker(_worker_id):
-
-    current_worker = Worker(worker_id = _worker_id)
-    current_worker.save()
-
-# Store the information of a response
-def store_response(_hit, _worker, _content, _assignment_id):
-    
-    current_response = Response(hit = _hit,
-                                worker = _worker,
-                                content = _content,
-                                assignment_id = _assignment_id)
-    current_response.save()
-    
-# Store the information of an acceptance
-def store_request(request):
-
-    # Extract the POST, GET and META parameters
-    request_dict = {}
-    
-    for key, value in request.GET.iteritems():
-        request_dict[key] = value
-    
-    for key, value in request.POST.iteritems():
-        request_dict[key] = value
-      
-    current_request = Request(path = request.get_full_path(),
-                              post_json = json.dumps(request_dict),
-                              recv_time = datetime.now())
-    current_request.save()
-    
-# Check the format of a request
-def check_format(json_dict):
-
-    try :
-        json_dict = json.loads(json_dict)
-        if not 'type' in json_dict :
-            return False
-        if not 'group_id' in json_dict :
-            return False
-        if not 'callback_url' in json_dict :
-            return False
-        if not 'content' in json_dict :
-            return False
-
-        content = json_dict['content']
-        if (len(content) == 0) :
-            return False
         
-        for i in range(len(content)) :
-
-            # Check if it is a dictionary
-            if not isinstance(content[i], dict) :
-                return False
-            
-            # Check if it contains only a key
-            if (len(content[i].keys()) != 1) :
-                return False
-
-            current_content = content[i][content[i].keys()[0]]
-            current_content = str(convert(current_content)).replace("\'", "\"")
-            json.loads(current_content)
-        
-    except :
-        return False
-    
-    return True
-
-# Deal with unicode
-def convert(input):
-    if isinstance(input, dict):
-        return {convert(key): convert(value) for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [convert(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
-    else:
-        return input
-
-# Make a majority vote answer for a HIT
-def make_mv_answer(current_hit) :
-
-    answers = []
-
-    for response in current_hit.response_set.all() :
-        current_content = response.content.split(",")
-        answers.append(current_content)
-        
-    if (len(answers) == 0) :
-        current_hit.mv_answer = ''
-    else :
-
-        mv_answer = []
-        # For each task
-        for i in range(len(answers[0])) :
-            
-            count = {}
-            # For each assignment
-            for j in range(len(answers)) :
-                if answers[j][i] in count :
-                    count[answers[j][i]] += 1
-                else :
-                    count[answers[j][i]] = 1
-
-            # Find the mode
-            current_answer = ''
-            max_count = -1
-            for key, value in count.iteritems() :
-                if (value > max_count) :
-                    max_count = value
-                    current_answer = key
-            mv_answer.append(current_answer)
-
-        current_hit.mv_answer = ','.join(mv_answer)
-    current_hit.save()
-        
-
-# Submit the answers to the callback URL
-def submit_callback_answer(current_hit) :
-
-    url = current_hit.group.callback_url
-    
-    json_answer = {'group_id' : current_hit.group.group_id,
-                   'identifier' : current_hit.identifier}
-
-    current_mv_answer = current_hit.mv_answer.split(',')
-    json_answer['answer'] = current_mv_answer
-
-    print json_answer
-    print json.dumps(json_answer)
-        
-    
 # A separate view for generating HITs
 @require_GET
 def hits_gen(request):
