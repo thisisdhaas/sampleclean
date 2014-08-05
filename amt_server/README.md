@@ -42,7 +42,7 @@ Thing to do to get up and running:
 
 Web Service APIs
 =============
-* Create a group of AMT HITs(**GET** method). 
+* Create a group of AMT HITs(**POST** method). 
 
   - There is only a single field, 'data', which maps to a json string:
 

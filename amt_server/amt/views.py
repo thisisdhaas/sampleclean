@@ -17,7 +17,7 @@ from store import *
 
         
 # A separate view for generating HITs
-@require_GET
+@require_POST
 def hits_gen(request):
     '''
         See README.md        
@@ -27,7 +27,7 @@ def hits_gen(request):
     wrong_response = json.dumps({'status' : 'wrong'})
     
     # Parse information contained in the URL
-    json_dict = request.GET.get('data')
+    json_dict = request.POST.get('data')
     # Check if it has correct format
     if (not check_format(json_dict)) :
         return HttpResponse(wrong_response)

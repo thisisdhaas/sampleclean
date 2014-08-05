@@ -79,7 +79,6 @@ class Response(models.Model):
     def __unicode__(self):
         return self.hit + " " + self.worker
 
-
 # Model for storing requests 
 class Request(models.Model):
     
