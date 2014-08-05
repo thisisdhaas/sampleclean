@@ -1,4 +1,5 @@
 from models import *
+from em import *
 import json
 
 
@@ -39,6 +40,61 @@ def make_mv_answer(current_hit) :
         current_hit.mv_answer = ','.join(mv_answer)
     current_hit.save()
         
+# Make an Expectation Maximization answer for a HIT
+def make_em_answer(current_hit) :
+
+    example_to_worker_label = {}
+    worker_to_example_label = {}
+    label_set=[]
+    answers = []
+    
+    # Make label set
+    if current_hit.type == 'sa' :
+        label_set = ['sp', 'p', 'nt', 'n', 'sn']
+    else :
+        label_set = ['same', 'diff']
+
+    # Build up initial variables for em
+    responses = Response.objects.all()
+    for response in responses :
+        if response.hit.type == current_hit.type :
+
+            answer_list = response.content.split(",")
+            for i in range(len(answer_list)) :
+
+                worker_id = response.worker.worker_id
+                unique_id = response.hit.HITId + str(i)
+                current_label = answer_list[i]
+
+                example_to_worker_label.setdefault(unique_id, []).append((worker_id, current_label))
+                worker_to_example_label.setdefault(worker_id, []).append((unique_id, current_label))
+
+    # EM algorithm
+    iterations = 20
+
+    ans, b, c = EM(example_to_worker_label,worker_to_example_label,label_set).ExpectationMaximization(iterations)
+
+    # Gather answer
+    
+    num_task = len(current_hit.response_set.all()[0].content.split(","))
+    answer_label = []
+    
+    for i in range(num_task) :
+        unique_id = current_hit.HITId + str(i)
+        for example in ans.keys() :
+            if example == unique_id :
+                soft_label = ans[example]
+                maxv = 0
+                cur_label = label_set[0]
+                for label, weight in soft_label.items() :
+                    if weight > maxv :
+                        maxv = weight
+                        cur_label = label
+                answer_label.append(cur_label)
+
+    current_hit.em_answer = ','.join(answer_label)
+    current_hit.save()
+
 
 # Submit the answers to the callback URL
 def submit_callback_answer(current_hit) :
@@ -48,8 +104,8 @@ def submit_callback_answer(current_hit) :
     json_answer = {'group_id' : current_hit.group.group_id,
                    'identifier' : current_hit.identifier}
 
-    current_mv_answer = current_hit.mv_answer.split(',')
-    json_answer['answer'] = current_mv_answer
+    current_em_answer = current_hit.em_answer.split(',')
+    json_answer['answer'] = current_em_answer
 
     print json_answer
     print json.dumps(json_answer)

@@ -180,11 +180,9 @@ def gete2wlandw2el(filename):
     return example_to_worker_label,worker_to_example_label,label_set
     
 
-if __name__ == "__main__":
+#if __name__ == "__main__":
     
-    filename=r'filename'
-    example_to_worker_label,worker_to_example_label,label_set=gete2wlandw2el(filename)
-    iterations=20 # EM iteration number
-    EM(example_to_worker_label,worker_to_example_label,label_set).ExpectationMaximization(iterations)
-    
-    
+#    filename=r'filename'
+#    example_to_worker_label,worker_to_example_label,label_set=gete2wlandw2el(filename)
+#    iterations=20 # EM iteration number
+#    EM(example_to_worker_label,worker_to_example_label,label_set).ExpectationMaximization(iterations)

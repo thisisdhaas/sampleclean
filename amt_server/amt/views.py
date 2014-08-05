@@ -156,8 +156,6 @@ def post_response(request):
     if Response.objects.filter(assignment_id = assignment_id).count() > 0 :
         return HttpResponse('Duplicate!')
 
-    print answers
-
     # Retrieve the corresponding HIT from the database based on the HITId
     current_hit = HIT.objects.filter(HITId = hit_id)[0]
 
@@ -170,7 +168,7 @@ def post_response(request):
     # Check if this HIT has been finished 
     if current_hit.response_set.count() == current_hit.num_assignment:
 
-        make_mv_answer(current_hit)
+        make_em_answer(current_hit)
 
         current_hit.group.HIT_finished += 1
         current_hit.group.save()

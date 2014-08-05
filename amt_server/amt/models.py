@@ -42,6 +42,9 @@ class HIT(models.Model):
 
     # Answer based on majority vote
     mv_answer = models.TextField()
+
+    # Answer based on Expectation Maximization
+    em_answer = models.TextField()
     
     def __unicode__(self):
         return self.type + " : " + self.content
