@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
-from connection import create_hit, AMT_NO_ASSIGNMENT_ID
+from connection import create_hit, disable_hit, AMT_NO_ASSIGNMENT_ID
 from django.http import HttpResponse
 from django.conf import settings
 from datetime import datetime
@@ -73,6 +73,13 @@ def hits_gen(request):
                   identifier)
                 
     return HttpResponse(correct_response)
+
+def hits_del(request) :
+
+    hit_set = HIT.objects.all()
+    for hit in hit_set :
+        disable_hit(hit.HITId)
+    return HttpResponse('ok')
 
 
 # we need this view to load in AMT's iframe, so disable Django's built-in

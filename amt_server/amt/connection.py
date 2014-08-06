@@ -67,4 +67,9 @@ def create_hit(hit_options):
         approval_delay=0)
         
     return create_response[0].HITId
-    
+   
+def disable_hit(hit_id) :
+
+    conn = get_amt_connection()
+    conn.disable_hit(hit_id)
+
