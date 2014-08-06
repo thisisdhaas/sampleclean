@@ -22,7 +22,7 @@ Thing to do to get up and running:
   `private_settings.py`. **NEVER CHECK THIS FILE INTO THE REPO.**
 
 * Set up the database:
-
+          $ python manage.py dbshell < sqlclear.txt
           $ python manage.py syncdb
 
 * Run the server:
