@@ -17,8 +17,8 @@ from store import *
 
         
 # A separate view for generating HITs
-#@require_POST
-#@csrf_exempt
+@require_POST
+@csrf_exempt
 def hits_gen(request):
     '''
         See README.md        
