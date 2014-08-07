@@ -6,6 +6,7 @@ from connection import create_hit, disable_hit, AMT_NO_ASSIGNMENT_ID
 from django.http import HttpResponse
 from django.conf import settings
 from datetime import datetime
+import pytz
 import json
 import os
 
@@ -24,14 +25,14 @@ def hits_gen(request):
         See README.md        
     '''
     # Response dictionaries
-    correct_response = json.dumps({'status' : 'ok'})
-    wrong_response = json.dumps({'status' : 'wrong'})
+    correct_response = {'status' : 'ok', 'map' : {}}
+    wrong_response = {'status' : 'wrong'}
     
     # Parse information contained in the URL
     json_dict = request.POST.get('data')
     # Check if it has correct format
     if (not check_format(json_dict)) :
-        return HttpResponse(wrong_response)
+        return HttpResponse(json.dumps(wrong_response))
 
     # Loads the JSON string to a dictionary
     json_dict = json.loads(json_dict)
@@ -52,7 +53,7 @@ def hits_gen(request):
     current_group = Group.objects.filter(group_id = group_id)[0]
 
     for i in range(len(content)) :
-        
+                
         # Using boto API to create an AMT HIT
         additional_options = {'num_responses' : num_assignment}
         current_hit_id = create_hit(additional_options)
@@ -60,25 +61,29 @@ def hits_gen(request):
         # identifier
         identifier = content[i].keys()[0]
         
+        # update response
+        correct_response['map'][identifier] = current_hit_id
+        
         # Deal with delimiters
         current_content = str(convert(content[i][identifier])).replace("\'", "\"")
                 
         # Save this HIT to the database
         store_hit(hit_type,
                   current_content,
-                  datetime.now(),
+                  pytz.utc.localize(datetime.now()),
                   current_hit_id,
                   current_group,
                   num_assignment,
                   identifier)
                 
-    return HttpResponse(correct_response)
+    return HttpResponse(json.dumps(correct_response))
 
 def hits_del(request) :
 
     hit_set = HIT.objects.all()
     for hit in hit_set :
         disable_hit(hit.HITId)
+    HIT.objects.all().delete()
     return HttpResponse('ok')
 
 
