@@ -168,12 +168,14 @@ def post_response(request):
     # Check if this is a duplicate response
     if Response.objects.filter(assignment_id = assignment_id).count() > 0 :
         return HttpResponse('Duplicate!')
-
+    
     # Retrieve the corresponding HIT from the database based on the HITId
     current_hit = HIT.objects.filter(HITId = hit_id)[0]
-
+    
     # Retrieve the worker from the database based on the workerId
-    current_worker = Worker.objects.filter(worker_id = worker_id)[0]
+    #######current_worker = Worker.objects.filter(worker_id = worker_id)[0]
+    current_worker = Worker(worker_id = worker_id)
+    current_worker.save()
 
     # Store this response into the database
     store_response(current_hit, current_worker, answers, assignment_id)
@@ -181,7 +183,8 @@ def post_response(request):
     # Check if this HIT has been finished 
     if current_hit.response_set.count() == current_hit.num_assignment:
 
-        make_em_answer(current_hit)
+        ########make_em_answer(current_hit)
+        make_mv_answer(current_hit)
 
         current_hit.group.HIT_finished += 1
         current_hit.group.save()

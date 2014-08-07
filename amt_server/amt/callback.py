@@ -99,13 +99,25 @@ def make_em_answer(current_hit) :
 # Submit the answers to the callback URL
 def submit_callback_answer(current_hit) :
 
+    file = open('result.txt', 'a')
     url = current_hit.group.callback_url
     
     json_answer = {'group_id' : current_hit.group.group_id,
                    'identifier' : current_hit.identifier}
 
-    current_em_answer = current_hit.em_answer.split(',')
-    json_answer['answer'] = current_em_answer
+#    current_em_answer = current_hit.em_answer.split(',')
+#    json_answer['answer'] = current_em_answer
 
-    print json_answer
-    print json.dumps(json_answer)
+    current_mv_answer = current_hit.mv_answer.split(',')
+    json_answer['answer'] = current_mv_answer
+    
+    convert = {'diff' : '0', 'same' : '1'}
+    if convert[current_mv_answer[0]] == current_hit.identifier[len(current_hit.identifier) - 1]:
+        file.write('Accept!\n')
+    else :
+        file.write('Wrong!\n')
+        
+    file.close()
+
+#    print json_answer
+#    print json.dumps(json_answer)

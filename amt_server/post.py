@@ -36,7 +36,6 @@ def create_hit() :
     
     filename = 'product'
     file = open(filename)
-    last_cp = ''
     
     hit_ids = {}
     num_assignments = {}
@@ -65,7 +64,8 @@ def create_hit() :
     # Partition the HITs into groups & Send hitsgen requests
     current_start = 0
     group_id = 0
-    group_size = 30
+    group_size = 10
+    print str(len(hit_contents)) + '\n'
     
     while current_start < len(hit_contents) :
         
@@ -116,40 +116,35 @@ def create_hit() :
     return hit_ids
 
 
+def simulate_worker(hit_ids) :
+
+    filename = 'product'
+    file = open(filename)
+    
+    convert = {'0' : 'diff', '1' : 'same'}
+    
+    for line in file.readlines() :
+    
+        items = line.split("\t")
+        
+        answers = convert[items[2][0]]
+        hit_id = hit_ids[items[1]]
+        worker_id = items[0]
+        assignment_id = worker_id + hit_id
+        
+        # Post a response
+        params = {}
+        params['answers'] = answers
+        params['HITId'] = hit_id
+        params['workerId'] = worker_id
+        params['assignmentId'] = assignment_id
+        
+        response = urllib2.urlopen('https://127.0.0.1:8000/amt/responses/',
+                                    urllib.urlencode(params))
 
 if __name__ == "__main__":
 
 
-    create_hit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    hit_ids = create_hit()
+    simulate_worker(hit_ids)
 
