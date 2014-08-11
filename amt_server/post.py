@@ -99,7 +99,7 @@ def create_hit() :
         
         # Send request
         params = {'data' : json.dumps(data)}
-        
+       
         response = urllib2.urlopen('https://127.0.0.1:8000/amt/hitsgen/',
                                     urllib.urlencode(params))
         
