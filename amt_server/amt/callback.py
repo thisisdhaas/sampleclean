@@ -105,14 +105,14 @@ def submit_callback_answer(current_hit) :
     json_answer = {'group_id' : current_hit.group.group_id,
                    'identifier' : current_hit.identifier}
 
-#    current_em_answer = current_hit.em_answer.split(',')
-#    json_answer['answer'] = current_em_answer
+    current_em_answer = current_hit.em_answer.split(',')
+    json_answer['answer'] = current_em_answer
 
-    current_mv_answer = current_hit.mv_answer.split(',')
-    json_answer['answer'] = current_mv_answer
+#    current_mv_answer = current_hit.mv_answer.split(',')
+#    json_answer['answer'] = current_mv_answer
     
     convert = {'diff' : '0', 'same' : '1'}
-    if convert[current_mv_answer[0]] == current_hit.identifier[len(current_hit.identifier) - 1]:
+    if convert[current_em_answer[0]] == current_hit.identifier[len(current_hit.identifier) - 1]:
         file.write('Accept!\n')
     else :
         file.write('Wrong!\n')
