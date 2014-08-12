@@ -64,7 +64,7 @@ def create_hit() :
     # Partition the HITs into groups & Send hitsgen requests
     current_start = 0
     group_id = 0
-    group_size = 10
+    group_size = 100
     print str(len(hit_contents)) + '\n'
     
     while current_start < len(hit_contents) :
@@ -99,7 +99,7 @@ def create_hit() :
         
         # Send request
         params = {'data' : json.dumps(data)}
-       
+
         response = urllib2.urlopen('https://127.0.0.1:8000/amt/hitsgen/',
                                     urllib.urlencode(params))
         
