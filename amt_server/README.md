@@ -98,7 +98,7 @@ Web Service APIs
      
     > {"status":"wrong"}
     
-    means the format is incorrect, may be attributed to wrong format of the content field or miss of other important fields.
+    means the format is incorrect, may be attributed to the wrong format of the content field or omissions of other important fields.
   
   
 * Send the results to the callback URL(**POST** method):
@@ -110,5 +110,5 @@ Web Service APIs
     
 	- **identifier** : the identifier of the HIT
 	
-    - **answer** : a JSON array consists of the answers for each HIT, exactly in the same order as the corresponding HITs are in the creating process
+    - **answer** : a JSON array which contains the answer for this HIT
 	
