@@ -85,9 +85,9 @@ Web Service APIs
     -  **callback_url** : The call back url
 
   - Examples : 
-    > https://localhost:8000/amt/hitsgen/?data={"type":"sa","num_assignment":1,"group_id":"Dan","callback_url":"google.com","content":[{"hit1":["aa","bb"]}]}
+    > data={"type":"sa","num_assignment":1,"group_id":"Dan","callback_url":"google.com","content":[{"hit1":["aa","bb"]}]}
 
-	> https://localhost:8000/amt/hitsgen/?data={"type":"er","num_assignment":1,"group_id":"haha","callback_url":"google.com",	
+	> data={"type":"er","num_assignment":1,"group_id":"haha","callback_url":"google.com",	
 	  "content":[{"hit1":[{"fields":["f1"],"record":[["5"],["6"]]}]},{"hit2":[{"fields":["age","name"],"record":[["22","James"],["21","Wenbo"]]}]}]}
 	
   - The direct response for this request is a simple JSON dictionary :
