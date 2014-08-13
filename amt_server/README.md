@@ -92,9 +92,9 @@ Web Service APIs
 	
   - The direct response for this request is a simple JSON dictionary :
      
-    > {"status":"ok"}
+    > {"status":"ok", "map":{"identifier1":"HITId1","identifier2":"HITId2"}}
     
-    means the format is correct;
+    means the format is correct. And the "map" field contains the AMT HITIds for each Hit.
      
     > {"status":"wrong"}
     
