@@ -33,7 +33,9 @@ def store_worker(_worker_id):
 def store_response(_hit, _worker, _content, _assignment_id):
     
     current_response = Response(hit = _hit,
+                                HITId = _hit.HITId,
                                 worker = _worker,
+                                workerId = _worker.worker_id,
                                 content = _content,
                                 assignment_id = _assignment_id)
     current_response.save()

@@ -66,10 +66,12 @@ class Response(models.Model):
     
     # The HIT that is responsed to, a many-to-one relationship
     hit = models.ForeignKey(HIT)
-    
+    HITId = models.TextField()    
+
     # The worker that gave the response, a many-to-one relationship
     worker = models.ForeignKey(Worker)
-    
+    workerId = models.TextField()
+
     # The content of the response (currently only a text, e.g, 'Positive' or 'Negative' for sentiment analysis)
     content = models.TextField()
 

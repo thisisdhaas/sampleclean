@@ -34,7 +34,7 @@ def create_hit() :
 
     # Read in the lines
     
-    filename = 'product'
+    filename = 'product(qt)'
     file = open(filename)
     
     hit_ids = {}
@@ -118,7 +118,7 @@ def create_hit() :
 
 def simulate_worker(hit_ids) :
 
-    filename = 'product'
+    filename = 'product(qt)'
     file = open(filename)
     
     convert = {'0' : 'diff', '1' : 'same'}

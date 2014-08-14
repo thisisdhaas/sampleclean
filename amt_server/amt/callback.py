@@ -1,14 +1,16 @@
 from models import *
 from em import *
 import json
-
+import pytz
+from datetime import datetime
 
 # Make a majority vote answer for a HIT
 def make_mv_answer(current_hit) :
 
     answers = []
 
-    for response in current_hit.response_set.all() :
+    responses = current_hit.response_set.all()
+    for response in responses :
         current_content = response.content.split(",")
         answers.append(current_content)
         
@@ -54,25 +56,33 @@ def make_em_answer(current_hit) :
     else :
         label_set = ['same', 'diff']
 
+    datetime1 = pytz.utc.localize(datetime.now())
     # Build up initial variables for em
-    responses = Response.objects.all()
+    responses = Response.objects.filter(hit__type = current_hit.type)
     for response in responses :
-        if response.hit.type == current_hit.type :
 
             answer_list = response.content.split(",")
             for i in range(len(answer_list)) :
 
-                worker_id = response.worker.worker_id
-                unique_id = response.hit.HITId + str(i)
+                worker_id = response.workerId
+                unique_id = response.HITId + str(i)
                 current_label = answer_list[i]
 
                 example_to_worker_label.setdefault(unique_id, []).append((worker_id, current_label))
                 worker_to_example_label.setdefault(worker_id, []).append((unique_id, current_label))
 
+    datetime2 = pytz.utc.localize(datetime.now())
+    if len(responses) % 300 == 0 :
+        print "Database latency : " + str((datetime2 - datetime1).total_seconds()) + "s."
+
     # EM algorithm
     iterations = 20
 
     ans, b, c = EM(example_to_worker_label,worker_to_example_label,label_set).ExpectationMaximization(iterations)
+
+    datetime1 = pytz.utc.localize(datetime.now())
+    if len(responses) % 300 == 0 :
+        print "EM latency : " + str((datetime1 - datetime2).total_seconds()) + "s."
 
     # Gather answer
     
@@ -81,20 +91,21 @@ def make_em_answer(current_hit) :
     
     for i in range(num_task) :
         unique_id = current_hit.HITId + str(i)
-        for example in ans.keys() :
-            if example == unique_id :
-                soft_label = ans[example]
-                maxv = 0
-                cur_label = label_set[0]
-                for label, weight in soft_label.items() :
-                    if weight > maxv :
-                        maxv = weight
-                        cur_label = label
-                answer_label.append(cur_label)
+        soft_label = ans[unique_id]
+        maxv = 0
+        cur_label = label_set[0]
+        for label, weight in soft_label.items() :
+            if weight > maxv :
+                maxv = weight
+                cur_label = label
+        answer_label.append(cur_label)
 
     current_hit.em_answer = ','.join(answer_label)
     current_hit.save()
 
+    datetime2 = pytz.utc.localize(datetime.now())
+    if len(responses) % 300 == 0 :
+        print "MV latency : " + str((datetime2 - datetime1).total_seconds()) + "s."
 
 # Submit the answers to the callback URL
 def submit_callback_answer(current_hit) :
