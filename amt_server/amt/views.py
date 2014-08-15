@@ -173,9 +173,7 @@ def post_response(request):
     current_hit = HIT.objects.filter(HITId = hit_id)[0]
     
     # Retrieve the worker from the database based on the workerId
-    #######current_worker = Worker.objects.filter(worker_id = worker_id)[0]
-    current_worker = Worker(worker_id = worker_id)
-    current_worker.save()
+    current_worker = Worker.objects.filter(worker_id = worker_id)[0]
 
     # Store this response into the database
     store_response(current_hit, current_worker, answers, assignment_id)

@@ -41,7 +41,7 @@ def make_mv_answer(current_hit) :
 
         current_hit.mv_answer = ','.join(mv_answer)
     current_hit.save()
-        
+
 # Make an Expectation Maximization answer for a HIT
 def make_em_answer(current_hit) :
 
@@ -56,7 +56,6 @@ def make_em_answer(current_hit) :
     else :
         label_set = ['same', 'diff']
 
-    datetime1 = pytz.utc.localize(datetime.now())
     # Build up initial variables for em
     responses = Response.objects.filter(hit__type = current_hit.type)
     for response in responses :
@@ -71,18 +70,10 @@ def make_em_answer(current_hit) :
                 example_to_worker_label.setdefault(unique_id, []).append((worker_id, current_label))
                 worker_to_example_label.setdefault(worker_id, []).append((unique_id, current_label))
 
-    datetime2 = pytz.utc.localize(datetime.now())
-    if len(responses) % 300 == 0 :
-        print "Database latency : " + str((datetime2 - datetime1).total_seconds()) + "s."
-
     # EM algorithm
     iterations = 20
 
     ans, b, c = EM(example_to_worker_label,worker_to_example_label,label_set).ExpectationMaximization(iterations)
-
-    datetime1 = pytz.utc.localize(datetime.now())
-    if len(responses) % 300 == 0 :
-        print "EM latency : " + str((datetime1 - datetime2).total_seconds()) + "s."
 
     # Gather answer
     
@@ -102,10 +93,6 @@ def make_em_answer(current_hit) :
 
     current_hit.em_answer = ','.join(answer_label)
     current_hit.save()
-
-    datetime2 = pytz.utc.localize(datetime.now())
-    if len(responses) % 300 == 0 :
-        print "MV latency : " + str((datetime2 - datetime1).total_seconds()) + "s."
 
 # Submit the answers to the callback URL
 def submit_callback_answer(current_hit) :
