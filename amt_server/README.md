@@ -54,7 +54,7 @@ Web Service APIs
     
       One of the following two things:
       
-      1. The tweet content for sentiment analysis, a JSON dictionary, 
+      1. The tweet content for sentiment analysis, a JSON array of JSON dictionaries, 
           
          e.g, the following JSON array :
           
