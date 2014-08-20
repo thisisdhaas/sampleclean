@@ -64,9 +64,9 @@ Web Service APIs
          will create two HITs in total, the identifiers of which are "hit1" and "hit2" respectively. 
 		 The first HIT consists of two tweets and the second one consists of one.
          
-      2. Records for entity resolution, a JSON array of JSON arrays, 
+      2. Records for entity resolution, a JSON array of JSON dictionaries, 
          
-             e.g, the following JSON dictionary
+             e.g, the following JSON array
 			 
                 [
 					{ "hit1" : 
@@ -98,17 +98,16 @@ Web Service APIs
      
     > {"status":"wrong"}
     
-    means the format is incorrect, may be attributed to the wrong format of the content field or omissions of other important fields.
+    means the format is incorrect, it may be attributed to the wrong format of the content field or omissions of other important fields.
   
   
 * Send the results to the callback URL(**POST** method):
   
   When a HIT gets enough votes from the crowd, the EM/MV answer will be sent back to the call back url.
   
-  - The results that are sent back consist of a single field, 'data', which maps to a json string :
+  - The results that are sent back consist of a single field, 'data', which maps to a json dictionary :
     - **group_id** : a string specify the group that this HIT belongs to
     
 	- **identifier** : the identifier of the HIT
 	
     - **answer** : a JSON array which contains the answer for this HIT
-	
