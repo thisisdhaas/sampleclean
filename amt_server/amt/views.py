@@ -114,7 +114,6 @@ def get_assignment(request):
         content = current_hit.content
     else:
         current_hit = None
-        content = '["No task available at this moment!"]'
 
     content = json.loads(content)
     
@@ -133,26 +132,16 @@ def get_assignment(request):
     if current_worker != None and assignment_id != None and current_hit != None:
         current_worker.hits.add(current_hit)
 
-    # Check the number of HITs this worker has accepted. A threshold needs to be tuned.
-    if current_worker != None:
-        print current_worker.hits.count()
-    else:
-        print 0
-
     # Render the template
-    if (current_hit != None and current_hit.type == 'sa') :
+    if (current_hit != None) :
         context = {'assignment_id' : assignment_id,
-                   'tweet_content' : content,
+                   'content' : content,
                    'allow_submission' : allow_submission
                     }
-        return render(request, 'amt/sa.html', context)
+        return render(request, 'amt/' + current_hit.type + '.html', context)
     else :
-        context = {'assignment_id' : assignment_id,
-                   'er_content' : content,
-                   'allow_submission' : allow_submission}
-        return render(request, 'amt/er.html', context)
-
-
+        return HttpResponse('No task available at the moment')
+        
 # When workers submit assignments, we should send data to this view via AJAX
 # before submitting to AMT.
 @require_POST
@@ -188,9 +177,5 @@ def post_response(request):
         current_hit.group.save()
 
         submit_callback_answer(current_hit)
-        
-    #    Check if the group to which this HIT belongs has been finished
-    #    if current_hit.group.HIT_finished == current_hit.group.hit_set.count() :
-    #        submit_callback_answer(current_hit.group)
 
     return HttpResponse('ok') # AJAX call succeded.
