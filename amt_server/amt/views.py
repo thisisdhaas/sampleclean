@@ -170,11 +170,6 @@ def post_response(request):
     # Check if this HIT has been finished 
     if current_hit.response_set.count() == current_hit.num_assignment:
 
-        make_em_answer(current_hit)
-        
-        current_hit.group.HIT_finished += 1
-        current_hit.group.save()
-        
-        submit_callback_answer(current_hit)
+        gather_answer.delay(current_hit)
         
     return HttpResponse('ok') # AJAX call succeded.
