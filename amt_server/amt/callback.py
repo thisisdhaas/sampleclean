@@ -58,11 +58,8 @@ def make_em_answer(current_hit) :
     answers = []
     
     # Make label set
-    if current_hit.type == 'sa' :
-        label_set = ['sp', 'p', 'nt', 'n', 'sn']
-    else :
-        label_set = ['same', 'diff']
-
+    
+    label_set = []
     # Build up initial variables for em
     responses = Response.objects.filter(hit__type = current_hit.type)
     for response in responses :
@@ -76,6 +73,9 @@ def make_em_answer(current_hit) :
 
                 example_to_worker_label.setdefault(unique_id, []).append((worker_id, current_label))
                 worker_to_example_label.setdefault(worker_id, []).append((unique_id, current_label))
+                
+                if current_label not in label_set :
+                    label_set.append(current_label)
 
     # EM algorithm
     iterations = 20
