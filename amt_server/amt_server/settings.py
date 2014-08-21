@@ -10,6 +10,12 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import djcelery
+
+# Celery Configuration
+djcelery.setup_loader()
+BROKER_URL = "amqp://guest:guest@localhost:5672//"
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -62,6 +68,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'sslserver',
     'amt',
+    'djcelery',
 )
 
 MIDDLEWARE_CLASSES = (

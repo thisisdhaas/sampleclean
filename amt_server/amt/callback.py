@@ -3,7 +3,7 @@ from em import *
 import json
 import pytz
 from datetime import datetime
-from celery import task
+from djcelery import celery
 import httplib
 import socket
 import ssl
@@ -13,7 +13,7 @@ import urllib2
 import operator
 
 # Function for gathering results after a HIT gets enough votes from the crowd
-@task()
+@celery.task
 def gather_answer(current_hit) :
 
     make_em_answer(current_hit)
