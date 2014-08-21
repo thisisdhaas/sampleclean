@@ -3,6 +3,7 @@ from em import *
 import json
 import pytz
 from datetime import datetime
+from celery import task
 import httplib
 import socket
 import ssl
