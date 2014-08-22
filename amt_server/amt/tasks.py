@@ -2,6 +2,7 @@ from djcelery import celery
 from callback import *
 
 # Function for gathering results after a HIT gets enough votes from the crowd
+@celery.task
 def gather_answer(current_hit) :
 
     make_em_answer(current_hit)
