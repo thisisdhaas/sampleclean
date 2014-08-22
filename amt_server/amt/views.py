@@ -12,10 +12,9 @@ import os
 
 
 from models import *
-from callback import *
 from blend import *
 from store import *
-
+from amt import callback
         
 # A separate view for generating HITs
 @require_POST
@@ -170,6 +169,6 @@ def post_response(request):
     # Check if this HIT has been finished 
     if current_hit.response_set.count() == current_hit.num_assignment:
 
-        gather_answer.delay(current_hit)
+        callback.gather_answer.delay(current_hit)
         
     return HttpResponse('ok') # AJAX call succeded.

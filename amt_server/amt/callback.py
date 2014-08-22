@@ -22,6 +22,7 @@ def gather_answer(current_hit) :
     submit_callback_answer(current_hit)
     
 # Make a majority vote answer for a HIT
+@celery.task
 def make_mv_answer(current_hit) :
 
     answers = []
@@ -60,6 +61,7 @@ def make_mv_answer(current_hit) :
     current_hit.save()
 
 # Make an Expectation Maximization answer for a HIT
+@celery.task
 def make_em_answer(current_hit) :
 
     example_to_worker_label = {}
@@ -112,6 +114,7 @@ def make_em_answer(current_hit) :
     current_hit.save()
 
 # Submit the answers to the callback URL
+@celery.task
 def submit_callback_answer(current_hit) :
 
     url = current_hit.group.callback_url
