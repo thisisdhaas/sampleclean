@@ -7,7 +7,7 @@ Thing to do to get up and running:
 
 * install postgres, and create a user and a DB for this project.
 
-& install RabbitMQ and start its server:
+* install RabbitMQ and start its server:
 
           $ sudo apt-get install rabbitmq-server
 		  
