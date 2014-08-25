@@ -7,6 +7,12 @@ Thing to do to get up and running:
 
 * install postgres, and create a user and a DB for this project.
 
+& install RabbitMQ and start its server:
+
+          $ sudo apt-get install rabbitmq-server
+		  
+		  $ rabbitmq-server
+		  
 * create a virtualenv for python dev (I like
   http://virtualenvwrapper.readthedocs.org/en/latest/).
 
@@ -23,13 +29,11 @@ Thing to do to get up and running:
 
 * Set up the database:
 
-          $ python manage.py dbshell < sqlclear.txt
-
-          $ python manage.py syncdb
+          $ ./reset_db.sh
 
 * Run the server:
 
-          $ python manage.py runsslserver
+          $ ./run.sh
 
 * Make sure it works: head to `https://localhost:8000/amt/assignments/` and you should
   see a 'Hello World' message. Then log into the AMT management interface
