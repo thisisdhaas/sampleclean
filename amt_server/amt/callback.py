@@ -108,7 +108,14 @@ def submit_callback_answer(current_hit) :
     
     json_answer = {'group_id' : current_hit.group.group_id,
                    'identifier' : current_hit.identifier}
-    current_em_answer = current_hit.em_answer.split(',')
+
+    tmp = current_hit.em_answer.split(',')
+    current_em_answer = []
+
+    for str in tmp :
+        current_em_answer.append(float(str))
+
+#    current_em_answer = current_hit.em_answer.split(',')
     json_answer['answer'] = current_em_answer
     # Send back data using urllib2
     
