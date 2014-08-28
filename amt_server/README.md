@@ -61,7 +61,7 @@ Web Service APIs
       
       1. 'sa'(Sentiment Analysis). The group_context is an empty json dictionary, i.e, {}.
 
-      2. 'er(Entity Resolution). The group_context consists of the shared schema for each pair of record. For exaple, the following:
+      2. 'er(Entity Resolution). The group_context consists of the shared schema for each pair of record. For example, the following:
       
              {"fields":["price","location"]}
 
@@ -83,7 +83,8 @@ Web Service APIs
 	         }
 
   - Examples : 
-         data=
+  
+         >data=
          {
           "configuration":{"type":"sa","hit_batch_size":2,"num_assignments":1,"callback_url":"google.com"},
           "group_id":"Dan1",
@@ -91,7 +92,7 @@ Web Service APIs
           "content":[{"tweet1":"aa", "tweet2": "bb"}]
          }
 
-         data=
+         >data=
          {
           "configuration":{"type":"er","hit_batch_size":1,"num_assignments":1,"callback_url":"google.com"},
           "group_id":"haha",
