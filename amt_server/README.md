@@ -75,7 +75,7 @@ Web Service APIs
 	          "tweet3": "Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."
 	         }
          
-      2. 'er' (Entity Resolution). Content should consist of pairs of records for entity resolution, specified as a json dictionary with pairs of records specified by unique ids, e.g, the following:
+      2. 'er' (Entity Resolution). Content should consist of pairs of records for entity resolution, specified as a json dictionary with pairs of records mapped to unique ids, e.g, the following:
 
 	         {
 	          "pair1": [["5","LA"], ["6","Berkeley"]], 
@@ -89,7 +89,7 @@ Web Service APIs
           "configuration":{"type":"sa","hit_batch_size":2,"num_assignments":1,"callback_url":"google.com"},
           "group_id":"Dan1",
           "group_context":{},
-          "content":[{"tweet1":"aa", "tweet2": "bb"}]
+          "content":{"tweet1":"aa", "tweet2": "bb"}
          }
 
          >data=
@@ -97,7 +97,7 @@ Web Service APIs
           "configuration":{"type":"er","hit_batch_size":1,"num_assignments":1,"callback_url":"google.com"},
           "group_id":"haha",
           "group_context":{"fields":["age","name"]},
-          "content":{"pair1": [["22","James"],["21","Wenbo"]]
+          "content":{"pair1": [["22","James"],["21","Wenbo"]]}
          }
 	
   - The direct response for this request is a simple json dictionary :
