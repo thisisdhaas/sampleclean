@@ -48,57 +48,45 @@ Thing to do to get up and running:
 
 Web Service APIs
 =============
-* Create a group of AMT HITs(**POST** method). 
+* Create HITs for a group of points(**POST** method). 
 
-  - There is only a single field, 'data', which maps to a json string:
-
-    - **type** : The type of this hit, e.g, 'sa' for sentiment analysis, 'er' for entity resolution
-
-    -  **content** :
-    
-      One of the following two things:
+  - There is only a single field, 'data', which maps to a json dictionary with keys:
+    - **configuration** : settings for this group of points, a JSON dictionary with keys:
+      - **type** : The type of this hit, e.g, 'sa' for sentiment analysis, 'er' for entity resolution
+      - **hit_batch_size** : The maximum number of points to show a crowd worker in a single HIT (integer).
+      - **num_assignments**: The maximum number of crowd votes to acquire for each HIT.
+      - **callback_url**: The URL to POST results to (see below).
+    - **group_id**: A unique identifier for this group of points. 
+    - **content** : Data necessary to render the crowd interface for the selected task type. Available types are:
       
-      1. The tweet content for sentiment analysis, a JSON array of JSON dictionaries, 
+      1. 'sa' (Sentiment Analysis). Content should be a JSON dictionary mapping unique ids to tweet strings, e.g, the following:
           
-         e.g, the following JSON array :
-          
-               [{"hit1" : ["Arsenal won the 4th again!", "Theo Walcott broke the ligament in his knee last season."]}, 
-                {"hit2" : ["Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."]}]
-           
-         will create two HITs in total, the identifiers of which are "hit1" and "hit2" respectively. 
-		 The first HIT consists of two tweets and the second one consists of one.
+            {
+	     "tweet1": "Arsenal won the 4th again!", 
+	     "tweet2": "Theo Walcott broke the ligament in his knee last season.",
+	     "tweet3": "Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."
+	    }
          
-      2. Records for entity resolution, a JSON array of JSON dictionaries, 
-         
-             e.g, the following JSON array
-			 
-                [
-					{ "hit1" : 
-						[
-							 {"fields":["price","location"],"record":[["5","LA"],["6","Berkeley"]]}, 
-							 {"fields":["name","age"],"record":[["Jenkinson","22"],["wenbo","21"]]}
-						]
-					}
-                ]
-             will create one HIT with two entity resolution tasks.
-    
-    -  **num_assignment** : The number of assignments for each HIT.
-    
-    -  **group_id** : A string used to specify the ID of this group of HITs.
-    
-    -  **callback_url** : The call back url
+      2. 'er' (Entity Resolution). Content should consist of pairs of records for entity resolution, specified as a JSON dictionary with the schema and the records, e.g, the following:
+
+	    {
+	     "fields":["price","location"],
+	     "records": {
+	         "pair1": [["5","LA"], ["6","Berkeley"]], 
+	         "pair2": [["80", "London"], ["80.0", "Londyn"]]
+	        }
+	    }
 
   - Examples : 
-    > data={"type":"sa","num_assignment":1,"group_id":"Dan","callback_url":"google.com","content":[{"hit1":["aa","bb"]}]}
+    > data={"configuration":{"type":"sa","hit_batch_size":2,"num_assignments":1,"callback_url":"google.com"},"group_id":"Dan1","content":[{"tweet1":"aa", "tweet2": "bb"}]}
 
-	> data={"type":"er","num_assignment":1,"group_id":"haha","callback_url":"google.com",	
-	  "content":[{"hit1":[{"fields":["f1"],"record":[["5"],["6"]]}]},{"hit2":[{"fields":["age","name"],"record":[["22","James"],["21","Wenbo"]]}]}]}
+    > data={"configuration":{"type":"er","hit_batch_size":1,"num_assignments":1,"callback_url":"google.com"},"group_id":"haha","content":{"fields":["age","name"],"records":{"pair1": [["22","James"],["21","Wenbo"]]}}}
 	
   - The direct response for this request is a simple JSON dictionary :
      
-    > {"status":"ok", "map":{"identifier1":"HITId1","identifier2":"HITId2"}}
+    > {"status":"ok"}
     
-    means the format is correct. And the "map" field contains the AMT HITIds for each Hit.
+    means the format is correct.
      
     > {"status":"wrong"}
     
@@ -107,11 +95,22 @@ Web Service APIs
   
 * Send the results to the callback URL(**POST** method):
   
-  When a HIT gets enough votes from the crowd, the EM/MV answer will be sent back to the call back url.
+  When a point gets enough votes from the crowd, the EM/MV answer will be sent back to the call back url.
   
   - The results that are sent back consist of a single field, 'data', which maps to a json dictionary :
-    - **group_id** : a string specify the group that this HIT belongs to
-    
-	- **identifier** : the identifier of the HIT
-	
-    - **answer** : a JSON array which contains the answer for this HIT
+    - **group_id** : a string specifying the group that this point belongs to
+    - **answers**: a list of 1 or more responses for points in the group, each of which contains:
+      - **identifier** : the identifier of the point given when the group was created.
+      - **value** : the answer value. Values should depend on the type of the crowd task. Available types are:
+        - 'sa': Value should be an integer in [1,5] corresponding to:
+          - **1**: Tweet is very negative
+          - **2**: Tweet is somewhat negative
+          - **3**: Tweet is neutral
+          - **4**: Tweet is somewhat positive
+          - **5**: Tweet is very positive
+  	- 'er': Value should be either 0.0 or 1.0, indicating 'records do not match' or 'records match', respectively.
+  
+  - Examples:
+    > data={"group_id":"Dan1", "answers":[{"identifier":"tweet1","value":1}, {"identifier":"tweet2","value":3}]}
+
+    > data={"group_id":"haha","answers":[{"identifier":"pair1","value":0.0}]}
