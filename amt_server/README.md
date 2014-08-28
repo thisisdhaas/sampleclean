@@ -108,7 +108,7 @@ Web Service APIs
           - **3**: Tweet is neutral
           - **4**: Tweet is somewhat positive
           - **5**: Tweet is very positive
-  	- 'er': Value should be either 0.0 or 1.0, indicating 'records do not match' or 'records match', respectively.
+        - 'er': Value should be either 0.0 or 1.0, indicating 'records do not match' or 'records match', respectively.
   
   - Examples:
     > data={"group_id":"Dan1", "answers":[{"identifier":"tweet1","value":1}, {"identifier":"tweet2","value":3}]}
