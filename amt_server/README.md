@@ -51,38 +51,55 @@ Web Service APIs
 * Create HITs for a group of points(**POST** method). 
 
   - There is only a single field, 'data', which maps to a json dictionary with keys:
-    - **configuration** : settings for this group of points, a JSON dictionary with keys:
+    - **configuration** : settings for this group of points, a json dictionary with keys:
       - **type** : The type of this hit, e.g, 'sa' for sentiment analysis, 'er' for entity resolution
       - **hit_batch_size** : The maximum number of points to show a crowd worker in a single HIT (integer).
       - **num_assignments**: The maximum number of crowd votes to acquire for each HIT.
       - **callback_url**: The URL to POST results to (see below).
     - **group_id**: A unique identifier for this group of points. 
+    - **group_context**: The context that is shared among all the points in the group. 
+      
+      1. 'sa'(Sentiment Analysis). The group_context is an empty json dictionary, i.e, {}.
+
+      2. 'er(Entity Resolution). The group_context consists of the shared schema for each pair of record. For exaple, the following:
+      
+             {"fields":["price","location"]}
+
     - **content** : Data necessary to render the crowd interface for the selected task type. Available types are:
       
-      1. 'sa' (Sentiment Analysis). Content should be a JSON dictionary mapping unique ids to tweet strings, e.g, the following:
+      1. 'sa' (Sentiment Analysis). Content should be a json dictionary mapping unique ids to tweet strings, e.g, the following:
           
-            {
-	     "tweet1": "Arsenal won the 4th again!", 
-	     "tweet2": "Theo Walcott broke the ligament in his knee last season.",
-	     "tweet3": "Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."
-	    }
+             {
+	          "tweet1": "Arsenal won the 4th again!", 
+	          "tweet2": "Theo Walcott broke the ligament in his knee last season.",
+	          "tweet3": "Lebron James went back to Cavaliers after he found his teammates in Heats no longer powerful."
+	         }
          
-      2. 'er' (Entity Resolution). Content should consist of pairs of records for entity resolution, specified as a JSON dictionary with the schema and the records, e.g, the following:
+      2. 'er' (Entity Resolution). Content should consist of pairs of records for entity resolution, specified as a json dictionary with pairs of records specified by unique ids, e.g, the following:
 
-	    {
-	     "fields":["price","location"],
-	     "records": {
-	         "pair1": [["5","LA"], ["6","Berkeley"]], 
-	         "pair2": [["80", "London"], ["80.0", "Londyn"]]
-	        }
-	    }
+	         {
+	          "pair1": [["5","LA"], ["6","Berkeley"]], 
+	          "pair2": [["80", "London"], ["80.0", "Londyn"]]
+	         }
 
   - Examples : 
-    > data={"configuration":{"type":"sa","hit_batch_size":2,"num_assignments":1,"callback_url":"google.com"},"group_id":"Dan1","content":[{"tweet1":"aa", "tweet2": "bb"}]}
+         data=
+         {
+          "configuration":{"type":"sa","hit_batch_size":2,"num_assignments":1,"callback_url":"google.com"},
+          "group_id":"Dan1",
+          "group_context":{},
+          "content":[{"tweet1":"aa", "tweet2": "bb"}]
+         }
 
-    > data={"configuration":{"type":"er","hit_batch_size":1,"num_assignments":1,"callback_url":"google.com"},"group_id":"haha","content":{"fields":["age","name"],"records":{"pair1": [["22","James"],["21","Wenbo"]]}}}
+         data=
+         {
+          "configuration":{"type":"er","hit_batch_size":1,"num_assignments":1,"callback_url":"google.com"},
+          "group_id":"haha",
+          "group_context":{"fields":["age","name"]},
+          "content":{"pair1": [["22","James"],["21","Wenbo"]]
+         }
 	
-  - The direct response for this request is a simple JSON dictionary :
+  - The direct response for this request is a simple json dictionary :
      
     > {"status":"ok"}
     

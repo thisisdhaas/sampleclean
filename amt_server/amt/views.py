@@ -24,7 +24,7 @@ def hits_gen(request):
         See README.md        
     '''
     # Response dictionaries
-    correct_response = {'status' : 'ok', 'map' : {}}
+    correct_response = {'status' : 'ok'}
     wrong_response = {'status' : 'wrong'}
     
     # Parse information contained in the URL
