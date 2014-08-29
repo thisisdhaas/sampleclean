@@ -12,6 +12,9 @@ class Group(models.Model):
     # The call back URL
     callback_url = models.TextField()
     
+    # context
+    group_context = models.TextField()
+    
     def __unicode__(self):
         return self.group_id
     
@@ -33,9 +36,6 @@ class HIT(models.Model):
 
     # The group that this HIT belongs to, a many-to-one relationship
     group = models.ForeignKey(Group)
-
-    # The identifier
-    identifier = models.TextField()
 
     # The number of assignments for this HIT.
     num_assignment = models.IntegerField()

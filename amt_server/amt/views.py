@@ -30,41 +30,45 @@ def hits_gen(request):
     # Parse information contained in the URL
     json_dict = request.POST.get('data')
     # Check if it has correct format
-    if (not check_format(json_dict)) :
+    if not check_format(json_dict) :
         return HttpResponse(json.dumps(wrong_response))
 
     # Loads the JSON string to a dictionary
     json_dict = json.loads(json_dict)
+    configuration = json_dict['configuration']
     
-    # Update num_assignment
-    if not 'num_assignment' in json_dict :
-        json_dict['num_assignment'] = 3
-
-    # Retrieve specific data    
-    hit_type = json_dict['type']
-    num_assignment = json_dict['num_assignment']
+    # Retrieve configuration
+    hit_type = configuration['type']
+    hit_batch_size = configuration['hit_batch_size']
+    num_assignment = configuration['num_assignments']
+    callback_url = configuration['callback_url']
+    
+    # Retrieve other important fields
     group_id = json_dict['group_id']
-    callback_url = json_dict['callback_url']
     content = json_dict['content']
-
+    group_context = json_dict['group_context']
+    group_context = str(convert(group_context)).replace("\'", "\"")
+    
     # Store the current group into the database
-    store_group(group_id, 0, callback_url);
+    store_group(group_id, 0, callback_url, group_context)
     current_group = Group.objects.filter(group_id = group_id)[0]
 
-    for i in range(len(content)) :
+    point_identifiers = content.keys()
+    for i in range(0, len(point_identifiers), hit_batch_size) :
                 
         # Using boto API to create an AMT HIT
         additional_options = {'num_responses' : num_assignment}
         current_hit_id = create_hit(additional_options)
 
-        # identifier
-        identifier = content[i].keys()[0]
-        
-        # update response
-        correct_response['map'][identifier] = current_hit_id
-        
+        current_content = {}
+        for j in range(i, i + hit_batch_size) :
+            
+            if j >= len(point_identifiers):
+                break
+            current_content[point_identifiers[j]] = content[point_identifiers[j]]
+            
         # Deal with delimiters
-        current_content = str(convert(content[i][identifier])).replace("\'", "\"")
+        current_content = str(convert(current_content)).replace("\'", "\"")
                 
         # Save this HIT to the database
         store_hit(hit_type,
@@ -72,8 +76,7 @@ def hits_gen(request):
                   pytz.utc.localize(datetime.now()),
                   current_hit_id,
                   current_group,
-                  num_assignment,
-                  identifier)
+                  num_assignment)
                 
     return HttpResponse(json.dumps(correct_response))
 
@@ -112,9 +115,10 @@ def get_assignment(request):
         current_hit = current_hit[0]
         content = current_hit.content
     else:
-        current_hit = None
+        return HttpResponse('No task available at the moment')
 
     content = json.loads(content)
+    group_context = json.loads(current_hit.group.group_context)
     
     # Save the information of this worker
     if worker_id != None:
@@ -131,15 +135,13 @@ def get_assignment(request):
     if current_worker != None and assignment_id != None and current_hit != None:
         current_worker.hits.add(current_hit)
 
-    # Render the template
-    if (current_hit != None) :
-        context = {'assignment_id' : assignment_id,
-                   'content' : content,
-                   'allow_submission' : allow_submission
-                    }
-        return render(request, 'amt/' + current_hit.type + '.html', context)
-    else :
-        return HttpResponse('No task available at the moment')
+    # Render the template    
+    context = {'assignment_id' : assignment_id,
+               'group_context' : group_context,
+               'content' : content,
+               'allow_submission' : allow_submission
+                }
+    return render(request, 'amt/' + current_hit.type + '.html', context)
         
 # When workers submit assignments, we should send data to this view via AJAX
 # before submitting to AMT.

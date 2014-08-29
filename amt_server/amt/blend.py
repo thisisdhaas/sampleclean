@@ -26,21 +26,21 @@ def check_format(json_dict):
         
         # Check group_context
         if not 'group_context' in json_dict :
-        
+            return False
+            
         # Check content
         if not 'content' in json_dict :
             return False
 
         content = json_dict['content']
-        point_identifier = content.keys()
-        if len(point_identifier) == 0 :
+        point_identifiers = content.keys()
+        if len(point_identifiers) == 0 :
             return False
             
-        for identifier in point_identifier :
+        for identifier in point_identifiers :
 
-            current_content = content[i][identifier]
-            current_content = str(convert(current_content)).replace("\'", "\"")
-            json.loads(current_content)
+            current_content = content[identifier]
+            current_content = str(convert(current_content)).replace("\'", "\"")            
         
     except :
         return False

@@ -44,11 +44,17 @@
 					else if (pair[0] == "workerId")
 						workerId = pair[1]
 				}
-				
+
+				//make answer dictionary
+				answers = {}
+				for (var i = 0; i < input_elements.length; i ++)
+					if (input_elements[i].type == "radio" && input_elements[i].checked == true)
+						answers[input_elements[i].id] = input_elements[i].value;
+
 				//Send a post request
 				$.post("/amt/responses/",
 						{
-							answers : answers.join(","),
+							answers : JSON.stringify(answers),
 							HITId : HITId,
 							workerId : workerId,
 							assignmentId : assignmentId
@@ -125,17 +131,17 @@
 					<div class="panel panel-primary">
 						<div class="panel-heading"><strong><font size = 3>Make your choice</font></strong></div>
 						<div class="panel-body">	
-							{% for hit in content %}
+							{% for id, tweet in content.items %}
 
-								<div style="width:100%; background-color:#F8F5D8" id = "tweet_{{hit}}">
-								<p> {{hit}} </p>
+								<div style="width:100%; background-color:#F8F5D8" id = "tweet_{{id}}">
+								<p> {{tweet}} </p>
 								</div>
 
-								<input type="radio" name = "{{hit}}{{forloop.counter}}" value="0.0"> Strongly Positive <br/>
-								<input type="radio" name = "{{hit}}{{forloop.counter}}" value="1.0"> Positive <br/>
-								<input type="radio" name = "{{hit}}{{forloop.counter}}" value="2.0"> Neutral <br/>
-								<input type="radio" name = "{{hit}}{{forloop.counter}}" value="3.0"> Negative <br/>
-								<input type="radio" name = "{{hit}}{{forloop.counter}}" value="4.0"> Strongly Negative <br/>						
+								<input type="radio" id = "{{id}}" name = "{{forloop.counter}}" value="1.0"> Strongly Positive <br/>
+								<input type="radio" id = "{{id}}" name = "{{forloop.counter}}" value="2.0"> Positive <br/>
+								<input type="radio" id = "{{id}}" name = "{{forloop.counter}}" value="3.0"> Neutral <br/>
+								<input type="radio" id = "{{id}}" name = "{{forloop.counter}}" value="4.0"> Negative <br/>
+								<input type="radio" id = "{{id}}" name = "{{forloop.counter}}" value="5.0"> Strongly Negative <br/>						
 								</br>
 							{% endfor %}
 						</div>

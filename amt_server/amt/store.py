@@ -4,23 +4,23 @@ import json
 
 
 # Store a group into the database
-def store_group(_group_id, _HIT_finished, _callback_url):
+def store_group(_group_id, _HIT_finished, _callback_url, _group_context):
 
     current_group = Group(group_id = _group_id,
                           HIT_finished = _HIT_finished,
-                          callback_url = _callback_url)
+                          callback_url = _callback_url,
+                          group_context = _group_context)
     current_group.save()
     
 # Store a hit into the database
-def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment, _identifier):
+def store_hit(_type, _content, _create_time, _HITId, _group, _num_assignment):
 
     current_hit = HIT(type = _type,
                       content = _content,
                       create_time = _create_time,
                       HITId = _HITId,
                       group = _group,
-                      num_assignment = _num_assignment,
-                      identifier = _identifier)
+                      num_assignment = _num_assignment)
     current_hit.save()
 
 # Store the information of a worker into the database

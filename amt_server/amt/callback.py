@@ -57,19 +57,19 @@ def make_em_answer(current_hit) :
     label_set=[]
     answers = []
     
-    # Make label set
-    
+    # Label set    
     label_set = []
+    
     # Build up initial variables for em
     responses = Response.objects.filter(hit__type = current_hit.type)
     for response in responses :
 
-            answer_list = response.content.split(",")
-            for i in range(len(answer_list)) :
+            answer_list = json.loads(response.content)
+            for point_id in answer_list.keys() :
 
                 worker_id = response.workerId
-                unique_id = response.HITId + str(i)
-                current_label = answer_list[i]
+                unique_id = point_id
+                current_label = answer_list[point_id]
 
                 example_to_worker_label.setdefault(unique_id, []).append((worker_id, current_label))
                 worker_to_example_label.setdefault(worker_id, []).append((unique_id, current_label))
@@ -84,11 +84,11 @@ def make_em_answer(current_hit) :
 
     # Gather answer
     
-    num_task = len(current_hit.response_set.all()[0].content.split(","))
-    answer_label = []
+    point_ids = json.loads(current_hit.response_set.all()[0].content).keys()
+    answer_label = {}
     
-    for i in range(num_task) :
-        unique_id = current_hit.HITId + str(i)
+    for point_id in point_ids :
+        unique_id = point_id
         soft_label = ans[unique_id]
         maxv = 0
         cur_label = label_set[0]
@@ -96,28 +96,23 @@ def make_em_answer(current_hit) :
             if weight > maxv :
                 maxv = weight
                 cur_label = label
-        answer_label.append(cur_label)
-
-    current_hit.em_answer = ','.join(answer_label)
+        answer_label[point_id] = float(cur_label)
+    
+    current_hit.em_answer = json.dumps(answer_label)
+    
     current_hit.save()
 
 # Submit the answers to the callback URL
 def submit_callback_answer(current_hit) :
 
-    url = current_hit.group.callback_url
-    
-    json_answer = {'group_id' : current_hit.group.group_id,
-                   'identifier' : current_hit.identifier}
+    url = current_hit.group.callback_url    
+    json_answer = {'group_id' : current_hit.group.group_id}
+    current_em_answer = json.loads(current_hit.em_answer)
 
-    tmp = current_hit.em_answer.split(',')
-    current_em_answer = []
+    json_answer['answers'] = []
+    for key in current_em_answer.keys() :
+        json_answer['answers'].append({'identifier' : key, 'value' : current_em_answer[key]})
 
-    for str in tmp :
-        current_em_answer.append(float(str))
-
-#    current_em_answer = current_hit.em_answer.split(',')
-    json_answer['answer'] = current_em_answer
-    # Send back data using urllib2
-    
+    # Send back data using urllib2    
     params = {'data' : json.dumps(json_answer)}
     urllib2.urlopen(url, urllib.urlencode(params))

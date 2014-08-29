@@ -5,7 +5,9 @@ from callback import *
 @celery.task
 def gather_answer(current_hit) :
 
+
     make_em_answer(current_hit)
     current_hit.group.HIT_finished += 1
     current_hit.group.save()    
     submit_callback_answer(current_hit)
+
